@@ -1,0 +1,12 @@
+.home-title {
+  left: 10vw;
+  font-size: 80px;
+  max-width: 35vw;
+  font-weight: 500;
+}
+
+.home-image {
+  position: absolute;
+  right: 10vw;
+  width: 384px;
+}
