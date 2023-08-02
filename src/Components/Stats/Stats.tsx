@@ -203,7 +203,7 @@ const Stats = () => {
                   al: 20/07/2023 18:00
                 </span>
               </div>
-              <div className="bg-green-500 px-1 w-4rem border-round-lg h-2rem text-white-alpha-90">
+              <div className="flex justify-content-center align-items-center bg-green-500 px-1 w-4rem border-round-lg h-2rem text-white-alpha-90">
                 Attivo
               </div>
             </div>
