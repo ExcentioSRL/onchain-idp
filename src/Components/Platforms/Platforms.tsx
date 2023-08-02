@@ -1,11 +1,10 @@
-import { PlatformInterface } from "../../Interfaces/PlatformInterface";
 import GeneralCard from "../GeneralCard/GeneralCard";
 import netflix from "../../Assets/netflix.png";
 import primevideo from "../../Assets/primevideo.png";
 import raiplay from "../../Assets/raiplay.jpeg";
 
 const Platforms = () => {
-  const allPlatforms: PlatformInterface[] = [
+  const allPlatforms = [
     {
       id: "1",
       name: "Netflix",
