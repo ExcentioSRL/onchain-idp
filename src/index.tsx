@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import "primeicons/primeicons.css";
 
 //theme
 import "primereact/resources/themes/viva-light/theme.css";

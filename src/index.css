@@ -5,6 +5,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 code {
@@ -23,7 +24,6 @@ code {
 }
 
 .p-card-header {
-  width: 100%;
-  height: 200px;
-  padding: 1rem;
+  display: flex;
+  justify-content: center;
 }
