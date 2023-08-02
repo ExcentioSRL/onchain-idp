@@ -6,7 +6,7 @@ const GeneralCard = ({ data }: { data: any }) => {
       <div className="wrapper flex flex-column justify-content-center flex-wrap md:flex-row">
         {data.map((platform: any) => {
           return (
-            <div className="card" key={platform.id}>
+            <div className="general-card" key={platform.id}>
               <img src={platform.image} alt={platform.name} />
               <div className="info">
                 <h1>{platform.name}</h1>
