@@ -1,0 +1,16 @@
+.min-height-card {
+  min-height: 8rem;
+}
+
+.platforms > .title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.p-card .p-card-body {
+  padding: 1rem !important;
+}
+
+.p-card .p-card-content {
+  padding: 0 !important;
+}
