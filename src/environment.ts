@@ -1,10 +1,11 @@
+import { ethers } from "ethers";
+
+export const BACKEND_LINK = "http://localhost:4000"
+
 /*
   Un ABI(Application Binary Interface) è un'interfaccia che definisce uno schema su come possiamo chiamare funzioni specifiche 
   nel nostro contratto intelligente specificato.
 */
-import { ethers } from "ethers";
-
-
 export const tokenAbi = [
   {
     "inputs": [
@@ -381,9 +382,14 @@ export const idpAbi = [
   {
     "inputs": [
       {
-        "internalType": "contract Excentio",
-        "name": "token",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "cap",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "reward",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -581,6 +587,13 @@ export const idpAbi = [
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "buy",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -690,6 +703,19 @@ export const idpAbi = [
   },
   {
     "inputs": [],
+    "name": "getToken",
+    "outputs": [
+      {
+        "internalType": "contract Excentio",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getUserData",
     "outputs": [
       {
@@ -747,13 +773,68 @@ export const idpAbi = [
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "sell",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "transfer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "transferFrom",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   }
-]
+];
 
-export const tokenContract = "0x850EC3780CeDfdb116E38B009d0bf7a1ef1b8b38";
-export const idpContranct = "0x1ACcBD355245AbA93CE46D33ab1D0152CE33Fd00";
-export const addressTo = "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199";
-export const tokenHolder = "0xdD2FD4581271e230360230F9337D5c0430Bf44C0"
+export const tokenContract = "0xa16E02E87b7454126E5E10d957A927A7F5B5d2be";
+export const idpContranct = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+export const addressFrom = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+export const addressTo = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+export const tokenHolder = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
 export const newTokenContract = (provider: any) => {
   return new ethers.Contract(

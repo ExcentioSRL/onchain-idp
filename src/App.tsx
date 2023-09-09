@@ -6,6 +6,7 @@ import Rent from "./Components/Rent/Rent";
 import Platforms from "./Components/Platforms/Platforms";
 import { EthereumInterface } from "./Interfaces/EthInterfaces";
 import Stats from "./Components/Stats/Stats";
+import SignupPlatform from "./Components/SignupPlatform/SignupPlatform";
 
 declare global {
   interface Window {
@@ -22,6 +23,7 @@ function App() {
         <Route path="/rent" element={<Rent />} />
         <Route path="/platforms" element={<Platforms />} />
         <Route path="/personal-area" element={<Stats />} />
+        <Route path="/signup-platform" element={<SignupPlatform />} />
       </Routes>
     </HashRouter>
   );

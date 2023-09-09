@@ -3,7 +3,6 @@ import { Column } from "primereact/column";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "primereact/button";
 import { Image } from "primereact/image";
-import netflixLogo from "../../Assets/netflix.png";
 import { ethers } from "ethers";
 import { newIdpContract } from "../../environment";
 import RentDialog from "./RentDialog/RentDialog";
@@ -112,7 +111,9 @@ const Rent = () => {
     //   default:
     //     console.log("niente");
     // }
-    return <Image src={netflixLogo} alt="netflixLogo" width="60px"></Image>;
+    return (
+      <Image src="/images/netflix.png" alt="netflixLogo" width="60px"></Image>
+    );
   };
 
   const nameTemplate = (rowData: UserRentInterface) => {

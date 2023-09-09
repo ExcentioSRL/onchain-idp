@@ -1,5 +1,4 @@
 import "./Home.css";
-import rent from "../../Assets/rent.png";
 
 const Home = () => {
   return (
@@ -11,7 +10,7 @@ const Home = () => {
         <p className="absolute home-title">
           La piattaforma di noleggio che amerai
         </p>
-        <img src={rent} alt="rent" className="home-image"></img>
+        <img src="/images/rent.png" alt="rent" className="home-image"></img>
       </div>
     </div>
   );

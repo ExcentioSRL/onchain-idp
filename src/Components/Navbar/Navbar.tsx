@@ -2,7 +2,6 @@ import { RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "primereact/button";
 import { Link } from "react-router-dom";
 import { EthereumInterface } from "../../Interfaces/EthInterfaces";
-import logo from "../../Assets/logo.png";
 import "./Navbar.css";
 import ToastComponent from "../ToastComponent/ToastComponent";
 import { Toast } from "primereact/toast";
@@ -22,7 +21,7 @@ async function getPublicAddress(
         })) as string[];
         return response[0];
       } catch (error) {
-        showError(toast, "Il wallet non è stato collegato");
+        // showError(toast, "Il wallet non è stato collegato");
       }
     }
   }
@@ -37,20 +36,20 @@ const Navbar = () => {
     const response = getPublicAddress(toast, ethereum);
 
     if (typeof response === "string") {
-      showSuccess(toast, "Il wallet è stato collegato");
+      // showSuccess(toast, "Il wallet è stato collegato");
       setPublicAddress(response);
     } else if (response) {
       response.then((res) => {
         if (typeof res === "string") {
-          showSuccess(toast, "Il wallet è stato collegato");
+          // showSuccess(toast, "Il wallet è stato collegato");
           setPublicAddress(res);
         } else {
-          showError(toast, "Il wallet non è stato collegato");
+          // showError(toast, "Il wallet non è stato collegato");
           setPublicAddress(undefined);
         }
       });
     } else {
-      showError(toast, "Il wallet non è stato collegato");
+      // showError(toast, "Il wallet non è stato collegato");
       setPublicAddress(undefined);
     }
   }, [ethereum]);
@@ -62,14 +61,13 @@ const Navbar = () => {
   return (
     <div className="w-full flex justify-content-between bg-primary py-2 px-3 ">
       <div className="flex gap-4 justify-content-start align-items-center">
-        <img src={logo} alt="Logo" style={{ height: "40px" }} />
+        <img src="images/logo.png" alt="Logo" style={{ height: "40px" }} />
         <Link
           to={"/"}
           className="cursor-pointer text-xl text-hover-navbar text-white"
         >
           Home
         </Link>
-
         {publicAddress ? (
           <Link
             to={"/rent"}
@@ -98,7 +96,6 @@ const Navbar = () => {
             Area personale
           </Link>
         )}
-        {/* <Button label="signup" severity="secondary" rounded size="small" /> */}
       </div>
       <ToastComponent toast={toast} />
     </div>

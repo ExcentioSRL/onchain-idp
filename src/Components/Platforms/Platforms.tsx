@@ -1,32 +1,24 @@
 import GeneralCard from "../GeneralCard/GeneralCard";
-import netflix from "../../Assets/netflix.png";
-import primevideo from "../../Assets/primevideo.png";
-import raiplay from "../../Assets/raiplay.jpeg";
+import { useEffect, useState } from "react";
+import { getAllPlatforms } from "../../Service/platform.service";
+
+export interface DBPlatformInterface {
+  _id: string;
+  name: string;
+  pathImage: string;
+  description: string;
+}
 
 const Platforms = () => {
-  const allPlatforms = [
-    {
-      id: "1",
-      name: "Netflix",
-      image: netflix,
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    },
-    {
-      id: "2",
-      name: "Prime Video",
-      image: primevideo,
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    },
-    {
-      id: "3",
-      name: "Rai play",
-      image: raiplay,
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    },
-  ];
+  const [allPlatforms, setAllPlatforms] = useState<DBPlatformInterface[]>([]);
+
+  useEffect(() => {
+    try {
+      getAllPlatforms().then((res) => {
+        setAllPlatforms(res.data);
+      });
+    } catch (error) {}
+  }, []);
 
   return (
     <div className="p-3">
