@@ -2,20 +2,18 @@ import { ethers } from "ethers";
 import {
   newTokenContract,
   newIdpContract,
-  addressTo,
   tokenHolder,
 } from "../../environment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Toast } from "primereact/toast";
-import { showError } from "../ToastComponent/ToastFunctions";
 import { Card } from "primereact/card";
-import { Button } from "primereact/button";
 import "./Stats.css";
-import PrimeVideo from "../../Assets/primevideo.png";
+import { Button } from "primereact/button";
+import { Dialog } from "primereact/dialog";
+import { InputText } from "primereact/inputtext";
 
 const Stats = () => {
   const eth = window.ethereum;
-  const [provider, setProvider] = useState<any | undefined>(undefined);
   const [value, setValue] = useState<string | undefined>(undefined);
   const [contractWithSigner, setContractWithSigner] = useState<
     ethers.Contract | undefined
@@ -23,35 +21,74 @@ const Stats = () => {
   const [idpContractWsigner, setIdpContractWsigner] = useState<
     ethers.Contract | undefined
   >(undefined);
-
   const toast = useRef<Toast>(null);
+  const [buyTokenDialog, setBuyTokenDialog] = useState<boolean>(false);
+  const [sellTokenDialog, setSellTokenDialog] = useState<boolean>(false);
+  const [amountToken, setAmountToken] = useState<string>("0");
 
-  const getTokens = useCallback(async () => {
+  const setData = useCallback(() => {
     const prov = new ethers.providers.Web3Provider(eth);
-    setProvider(prov);
     const signer = prov.getSigner();
     const response = newTokenContract(prov);
 
     const tokenContract = response.connect(signer);
+
     setContractWithSigner(tokenContract);
 
     const responseIdp = newIdpContract(prov);
     const idpContract = responseIdp.connect(signer);
-    console.log(idpContract);
-    setIdpContractWsigner((idpC) => (idpC = idpContract));
+
+    setIdpContractWsigner(idpContract);
+  }, [eth]);
+
+  const getTokens = useCallback(async () => {
+    if (!idpContractWsigner) {
+      setData();
+      return;
+    }
 
     try {
-      const resp = await tokenContract.balanceOf(tokenHolder);
-      setValue(ethers.utils.formatEther(resp));
+      const balance = await idpContractWsigner.balance(eth.selectedAddress);
+      setValue(ethers.utils.formatEther(balance));
     } catch (error) {
       console.log(error);
       // showError(toast, "Chiamata andata male");
     }
-  }, [eth]);
+  }, [eth.selectedAddress, idpContractWsigner, setData]);
+
+  async function buyTokens() {
+    if (!idpContractWsigner) return;
+
+    try {
+      idpContractWsigner
+        .buy({
+          value: ethers.utils.parseUnits(amountToken, 18),
+        })
+        .then(() => {
+          setValue(undefined);
+          setBuyTokenDialog(false);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function sellTokens() {
+    if (!idpContractWsigner || !contractWithSigner) return;
+
+    let sellValue = ethers.utils.parseUnits(amountToken, 18);
+
+    try {
+      await contractWithSigner.approve(tokenHolder, sellValue);
+      await idpContractWsigner.sell(sellValue);
+      setValue(undefined);
+      setSellTokenDialog(false);
+    } catch (error) {}
+  }
 
   useEffect(() => {
     if (value === undefined) getTokens();
-  }, [value]);
+  }, [value, getTokens]);
 
   // const addUser = async () => {
   //   if (!idpContractWsigner) return showError(toast, "idpContract non salvato");
@@ -133,53 +170,79 @@ const Stats = () => {
   // if (!eth.selectedAddress) return <>Non sei autorizzato</>;
 
   const headerPlatforms = (
-    <img alt="Prime video" src={PrimeVideo} style={{ width: "70%" }} />
+    <img
+      alt="Prime video"
+      src="/images/primevideo.png"
+      style={{ width: "70%" }}
+    />
   );
 
   const headerRentals = (
     <div className="flex align-items-center">
-      <img alt="Prime video" src={PrimeVideo} style={{ width: "30%" }} />
+      <img
+        alt="Prime video"
+        src="/images/primevideo.png"
+        style={{ width: "30%" }}
+      />
       <span className="font-semibold text-black-alpha-90">200 EXC</span>
     </div>
   );
 
   return (
     <div className="p-3">
-      <div className="grid p-5">
-        <div className="col-12 md:col-6 lg:col-3">
-          <div className="surface-0 shadow-2 p-3 border-1 border-50 border-round min-height-card">
-            <div className="flex justify-content-between mb-3">
-              <div>
-                <span className="block text-500 font-medium mb-3">Conto</span>
-                <div className="text-900 font-medium text-xl">
-                  {value ? value : 0} EXC
+      <div className="flex w-full justify-content-around">
+        <div className="grid p-3 w-10">
+          <div className="col-12 md:col-6 lg:col-3">
+            <div className="surface-0 shadow-2 p-3 border-1 border-50 border-round min-height-card">
+              <div className="flex justify-content-between mb-3">
+                <div>
+                  <span className="block text-500 font-medium mb-3">Conto</span>
+                  <div className="text-900 font-medium text-xl">
+                    {value ? value : 0} EXC
+                  </div>
+                </div>
+                <div
+                  className="flex align-items-center justify-content-center bg-green-100 border-round"
+                  style={{ width: "2.5rem", height: "2.5rem" }}
+                >
+                  <i className="pi pi-wallet text-green-500 text-xl"></i>
                 </div>
               </div>
-              <div
-                className="flex align-items-center justify-content-center bg-green-100 border-round"
-                style={{ width: "2.5rem", height: "2.5rem" }}
-              >
-                <i className="pi pi-wallet text-green-500 text-xl"></i>
+            </div>
+          </div>
+          <div className="col-12 md:col-6 lg:col-3">
+            <div className="surface-0 shadow-2 p-3 border-1 border-50 border-round min-height-card">
+              <div className="flex justify-content-between mb-3">
+                <div>
+                  <span className="block text-500 font-medium mb-3">
+                    Noleggi
+                  </span>
+                  <div className="text-900 font-medium text-xl">100</div>
+                </div>
+                <div
+                  className="flex align-items-center justify-content-center bg-blue-100 border-round"
+                  style={{ width: "2.5rem", height: "2.5rem" }}
+                >
+                  <i className="pi pi-key text-blue-500 text-xl"></i>
+                </div>
               </div>
+              <span className="text-500 font-medium">di cui attivi: 1</span>
             </div>
           </div>
         </div>
-        <div className="col-12 md:col-6 lg:col-3">
-          <div className="surface-0 shadow-2 p-3 border-1 border-50 border-round min-height-card">
-            <div className="flex justify-content-between mb-3">
-              <div>
-                <span className="block text-500 font-medium mb-3">Noleggi</span>
-                <div className="text-900 font-medium text-xl">100</div>
-              </div>
-              <div
-                className="flex align-items-center justify-content-center bg-blue-100 border-round"
-                style={{ width: "2.5rem", height: "2.5rem" }}
-              >
-                <i className="pi pi-key text-blue-500 text-xl"></i>
-              </div>
-            </div>
-            <span className="text-500 font-medium">di cui attivi: 1</span>
-          </div>
+        <div className="flex flex-column gap-3 justify-content-center">
+          <Button
+            label="Compra token"
+            severity="success"
+            rounded
+            onClick={() => setBuyTokenDialog(true)}
+          />
+          <Button
+            label="Vendi token"
+            severity="danger"
+            rounded
+            onClick={() => setSellTokenDialog(true)}
+          />
         </div>
       </div>
       <div className="platforms px-5 flex flex-column gap-5 mb-5">
@@ -220,6 +283,64 @@ const Stats = () => {
       </div> */}
 
       <Toast ref={toast}></Toast>
+
+      {buyTokenDialog ? (
+        <Dialog
+          header="Quanti token vuoi comprare?"
+          visible={buyTokenDialog}
+          style={{ width: "50vw" }}
+          onHide={() => setBuyTokenDialog(false)}
+        >
+          <div className="py-5">
+            <span className="p-float-label">
+              <InputText
+                id="tokens"
+                className="w-full"
+                value={amountToken}
+                onChange={(e) => setAmountToken(e.target.value)}
+              />
+              <label htmlFor="tokens">Token to buy</label>
+            </span>
+          </div>
+          <Button
+            label="Compra"
+            severity="success"
+            rounded
+            onClick={buyTokens}
+          />
+        </Dialog>
+      ) : (
+        <></>
+      )}
+
+      {sellTokenDialog ? (
+        <Dialog
+          header="Quanti token vuoi vendere?"
+          visible={sellTokenDialog}
+          style={{ width: "50vw" }}
+          onHide={() => setSellTokenDialog(false)}
+        >
+          <div className="py-5">
+            <span className="p-float-label">
+              <InputText
+                id="tokens"
+                className="w-full"
+                value={amountToken}
+                onChange={(e) => setAmountToken(e.target.value)}
+              />
+              <label htmlFor="tokens">Token to sell</label>
+            </span>
+          </div>
+          <Button
+            label="Vendi"
+            severity="danger"
+            rounded
+            onClick={sellTokens}
+          />
+        </Dialog>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };
