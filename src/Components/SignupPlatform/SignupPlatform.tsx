@@ -3,18 +3,19 @@ import { Card } from "primereact/card";
 import { InputText } from "primereact/inputtext";
 import { useState } from "react";
 import { newPlatform } from "../../Service/platform.service";
-import { FileUpload } from "primereact/fileupload";
 
 const SignupPlatform = () => {
   const [platformName, setPlatformName] = useState<string>("");
   const [redirectLink, setRedirectLink] = useState<string>("");
   const [pathImage, setPathImage] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
 
   const newPlatformApi = async () => {
     const data = {
       platformName: platformName,
       redirectLink: redirectLink,
       pathImage: pathImage,
+      description: description,
     };
 
     try {
@@ -53,20 +54,16 @@ const SignupPlatform = () => {
             />
             <label htmlFor="redirectLink">Link di redirect</label>
           </span>
-          {/* <span className="p-float-label w-full mb-5">
-            <FileUpload
-              name="logo"
-              uploadHandler={(e) => console.log(e)}
-              accept="image/*"
-              customUpload
-              maxFileSize={1000000}
-              emptyTemplate={
-                <p className="m-0">
-                  Trascina qui il logo della tua piattaforma
-                </p>
-              }
+          <span className="p-float-label w-full mb-5">
+            <InputText
+              className="w-full"
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
-          </span> */}
+            <label htmlFor="description">Descrizione</label>
+          </span>
+
           <Button rounded label="Invia" type="submit"></Button>
         </form>
       </Card>
