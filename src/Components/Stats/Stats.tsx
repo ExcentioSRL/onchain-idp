@@ -3,6 +3,7 @@ import {
   newTokenContract,
   newIdpContract,
   tokenHolder,
+  addressTo,
 } from "../../environment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Toast } from "primereact/toast";
@@ -11,6 +12,9 @@ import "./Stats.css";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
+import { PrivateUserData } from "../../Interfaces/PlatformInterface";
+import { FirstRow } from "./FirstRow";
+import { PrivatePlatforms } from "./PrivatePlatforms";
 
 const Stats = () => {
   const eth = window.ethereum;
@@ -25,6 +29,9 @@ const Stats = () => {
   const [buyTokenDialog, setBuyTokenDialog] = useState<boolean>(false);
   const [sellTokenDialog, setSellTokenDialog] = useState<boolean>(false);
   const [amountToken, setAmountToken] = useState<string>("0");
+  const [userData, setUserData] = useState<PrivateUserData | undefined>(
+    undefined
+  );
 
   const setData = useCallback(() => {
     const prov = new ethers.providers.Web3Provider(eth);
@@ -86,96 +93,83 @@ const Stats = () => {
     } catch (error) {}
   }
 
+  const getPrivateUserData = useCallback(async () => {
+    if (!idpContractWsigner) {
+      console.log("idp contract");
+      return;
+    }
+
+    try {
+      const resp = await idpContractWsigner.getPrivateUserDataById(
+        eth.selectedAddress
+      );
+
+      const data: PrivateUserData = resp.map((r: PrivateUserData) => ({
+        userAddr: r.userAddr,
+        platforms: r.platforms.map((p) => ({
+          cost: ethers.utils.formatEther(p.cost),
+          isValid: p.isValid,
+          uuid: p.uuid,
+        })),
+        rentals: r.rentals,
+      }))[0];
+
+      setUserData(data);
+    } catch (error: any) {
+      console.log(error);
+    }
+  }, [idpContractWsigner]);
+
   useEffect(() => {
     if (value === undefined) getTokens();
-  }, [value, getTokens]);
+    if (userData === undefined) getPrivateUserData();
+  }, [value, getTokens, idpContractWsigner, userData, getPrivateUserData]);
 
-  // const addUser = async () => {
-  //   if (!idpContractWsigner) return showError(toast, "idpContract non salvato");
+  const addUser = async () => {
+    if (!idpContractWsigner) {
+      console.log("");
+      return;
+    }
 
-  //   try {
-  //     const resp = await idpContractWsigner.addUser(tokenHolder);
-  //     console.log(resp);
-  //   } catch (error: any) {
-  //     console.log(error);
-  //     showError(toast, error.error.data.message.split("string")[1]);
-  //   }
-  // };
+    try {
+      const resp = await idpContractWsigner.addUser(eth.selectedAddress);
+      console.log(resp);
+    } catch (error: any) {
+      console.log(error);
+      // showError(toast, error.error.data.message.split("string")[1]);
+    }
+  };
 
-  // const addUser2 = async () => {
-  //   if (!idpContractWsigner) return showError(toast, "idpContract non salvato");
-  //   try {
-  //     const resp = await idpContractWsigner.addUser(addressTo);
-  //     console.log(resp);
-  //   } catch (error: any) {
-  //     console.log(error);
-  //     showError(toast, error.error.data.message.split("string")[1]);
-  //   }
-  // };
+  const addUser2 = async () => {
+    if (!idpContractWsigner) {
+      console.log("");
+      return;
+    }
+    try {
+      const resp = await idpContractWsigner.addUser(addressTo);
+      console.log(resp);
+    } catch (error: any) {
+      console.log(error);
+      // showError(toast, error.error.data.message.split("string")[1]);
+    }
+  };
 
-  // const getUserData = async () => {
-  //   console.log(idpContractWsigner);
-  //   if (!idpContractWsigner) return showError(toast, "idpContract non salvato");
-  //   try {
-  //     const resp = await idpContractWsigner.getUserData();
-  //     console.log(resp);
-  //   } catch (error: any) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // const addPlatform = async () => {
-  //   console.log(idpContractWsigner);
-  //   if (!idpContractWsigner) return showError(toast, "idpContract non salvato");
-  //   try {
-  //     const resp = await idpContractWsigner.addPlatformToUser(
-  //       tokenHolder,
-  //       "1",
-  //       "1"
-  //     );
-  //     console.log(resp);
-  //   } catch (error: any) {
-  //     console.log(error);
-  //     showError(toast, error.error.data.message.split("string")[1]);
-  //   }
-  // };
-
-  // const addPlatformToUser2 = async () => {
-  //   if (!idpContractWsigner) return;
-  //   console.log(idpContractWsigner);
-  //   try {
-  //     const resp = await idpContractWsigner.addPlatformToUser(
-  //       addressTo,
-  //       "1",
-  //       "1"
-  //     );
-  //     console.log(resp);
-  //   } catch (error: any) {
-  //     console.log(error);
-  //     showError(toast, error.error.data.message.split("string")[1]);
-  //   }
-  // };
-
-  // const transferToken = async () => {
-  //   if (contractWithSigner === undefined) return;
-
-  //   try {
-  //     const response = await contractWithSigner.transfer(addressTo, 20);
-  //     console.log(response);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // if (!eth.selectedAddress) return <>Non sei autorizzato</>;
-
-  const headerPlatforms = (
-    <img
-      alt="Prime video"
-      src="/images/primevideo.png"
-      style={{ width: "70%" }}
-    />
-  );
+  const addPlatform = async () => {
+    if (!idpContractWsigner) {
+      console.log("");
+      return;
+    }
+    try {
+      const resp = await idpContractWsigner.addPlatformToUser(
+        eth.selectedAddress,
+        "64fcdab4dce9032efe803935",
+        ethers.utils.parseUnits("0.000000000000000001")
+      );
+      console.log(resp);
+    } catch (error: any) {
+      console.log(error);
+    }
+  };
 
   const headerRentals = (
     <div className="flex align-items-center">
@@ -190,69 +184,14 @@ const Stats = () => {
 
   return (
     <div className="p-3">
-      <div className="flex w-full justify-content-around">
-        <div className="grid p-3 w-10">
-          <div className="col-12 md:col-6 lg:col-3">
-            <div className="surface-0 shadow-2 p-3 border-1 border-50 border-round min-height-card">
-              <div className="flex justify-content-between mb-3">
-                <div>
-                  <span className="block text-500 font-medium mb-3">Conto</span>
-                  <div className="text-900 font-medium text-xl">
-                    {value ? value : 0} EXC
-                  </div>
-                </div>
-                <div
-                  className="flex align-items-center justify-content-center bg-green-100 border-round"
-                  style={{ width: "2.5rem", height: "2.5rem" }}
-                >
-                  <i className="pi pi-wallet text-green-500 text-xl"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-12 md:col-6 lg:col-3">
-            <div className="surface-0 shadow-2 p-3 border-1 border-50 border-round min-height-card">
-              <div className="flex justify-content-between mb-3">
-                <div>
-                  <span className="block text-500 font-medium mb-3">
-                    Noleggi
-                  </span>
-                  <div className="text-900 font-medium text-xl">100</div>
-                </div>
-                <div
-                  className="flex align-items-center justify-content-center bg-blue-100 border-round"
-                  style={{ width: "2.5rem", height: "2.5rem" }}
-                >
-                  <i className="pi pi-key text-blue-500 text-xl"></i>
-                </div>
-              </div>
-              <span className="text-500 font-medium">di cui attivi: 1</span>
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-column gap-3 justify-content-center">
-          <Button
-            label="Compra token"
-            severity="success"
-            rounded
-            onClick={() => setBuyTokenDialog(true)}
-          />
-          <Button
-            label="Vendi token"
-            severity="danger"
-            rounded
-            onClick={() => setSellTokenDialog(true)}
-          />
-        </div>
-      </div>
-      <div className="platforms px-5 flex flex-column gap-5 mb-5">
-        <span className="title">Le tue piattaforme</span>
-        <div className="flex">
-          <Card header={headerPlatforms} className="md:w-12rem shadow-2">
-            <div className="flex justify-content-center">Prime Video</div>
-          </Card>
-        </div>
-      </div>
+      <FirstRow
+        value={value}
+        setBuyTokenDialog={setBuyTokenDialog}
+        setSellTokenDialog={setSellTokenDialog}
+      />
+
+      <PrivatePlatforms userData={userData} />
+
       <div className="platforms px-5 flex flex-column gap-5">
         <span className="title">I tuoi noleggi</span>
         <div className="flex">
@@ -273,15 +212,13 @@ const Stats = () => {
           </Card>
         </div>
       </div>
-      {/* <div className="flex gap-3">
-        <Button onClick={transferToken}>trasferisci</Button>
+      <div className="flex gap-3">
         <Button onClick={addUser}>addUser</Button>
         <Button onClick={addUser2}>addUser2</Button>
         <Button onClick={addPlatform}>addPlatform</Button>
-        <Button onClick={addPlatformToUser2}>addPlatformToUser2</Button>
-        <Button onClick={getUserData}>getUserData</Button>
-      </div> */}
-
+        {/* <Button onClick={addPlatformToUser2}>addPlatformToUser2</Button> */}
+        <Button onClick={getPrivateUserData}>getPrivateUserData</Button>
+      </div>
       <Toast ref={toast}></Toast>
 
       {buyTokenDialog ? (
