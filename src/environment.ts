@@ -702,6 +702,96 @@ export const idpAbi = [
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getPrivateUserDataById",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "userAddr",
+            "type": "address"
+          },
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "uuid",
+                "type": "string"
+              },
+              {
+                "internalType": "bool",
+                "name": "isValid",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "cost",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct Idp.PlatformStruct[]",
+            "name": "platforms",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "transactionId",
+                "type": "string"
+              },
+              {
+                "internalType": "address",
+                "name": "renter",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "hirer",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "startDate",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "endDate",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "string",
+                "name": "platformId",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct Idp.RentalStruct[]",
+            "name": "rentals",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct Idp.PrivateUserData[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getToken",
     "outputs": [

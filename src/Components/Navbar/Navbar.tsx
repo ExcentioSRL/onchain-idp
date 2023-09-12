@@ -5,7 +5,10 @@ import { EthereumInterface } from "../../Interfaces/EthInterfaces";
 import "./Navbar.css";
 import ToastComponent from "../ToastComponent/ToastComponent";
 import { Toast } from "primereact/toast";
-import { showError, showSuccess } from "../ToastComponent/ToastFunctions";
+import { useDispatch } from "react-redux";
+import { setContract } from "../../Slice/contracts.slice";
+import { AppDispatch } from "../../global.store";
+import { setData } from "../../Service/contract.service";
 
 async function getPublicAddress(
   toast: RefObject<Toast>,
@@ -31,6 +34,7 @@ const Navbar = () => {
   const ethereum = window.ethereum;
   const [publicAddress, setPublicAddress] = useState<string | undefined>();
   const toast = useRef<Toast>(null);
+  const dispatch = useDispatch<AppDispatch>();
 
   const login = useCallback(() => {
     const response = getPublicAddress(toast, ethereum);
@@ -38,11 +42,15 @@ const Navbar = () => {
     if (typeof response === "string") {
       // showSuccess(toast, "Il wallet è stato collegato");
       setPublicAddress(response);
+      const data = setData();
+      dispatch(setContract(data));
     } else if (response) {
       response.then((res) => {
         if (typeof res === "string") {
           // showSuccess(toast, "Il wallet è stato collegato");
           setPublicAddress(res);
+          const data = setData();
+          dispatch(setContract(data));
         } else {
           // showError(toast, "Il wallet non è stato collegato");
           setPublicAddress(undefined);
@@ -52,7 +60,7 @@ const Navbar = () => {
       // showError(toast, "Il wallet non è stato collegato");
       setPublicAddress(undefined);
     }
-  }, [ethereum]);
+  }, [dispatch, ethereum]);
 
   useEffect(() => {
     if (publicAddress === undefined) login();

@@ -1,10 +1,5 @@
 import { ethers } from "ethers";
-import {
-  newTokenContract,
-  newIdpContract,
-  tokenHolder,
-  addressTo,
-} from "../../environment";
+import { tokenHolder, addressTo } from "../../environment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Toast } from "primereact/toast";
 import { Card } from "primereact/card";
@@ -15,16 +10,13 @@ import { InputText } from "primereact/inputtext";
 import { PrivateUserData } from "../../Interfaces/PlatformInterface";
 import { FirstRow } from "./FirstRow";
 import { PrivatePlatforms } from "./PrivatePlatforms";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../../global.store";
+import { contractSelector } from "../../Slice/contracts.slice";
 
 const Stats = () => {
   const eth = window.ethereum;
   const [value, setValue] = useState<string | undefined>(undefined);
-  const [contractWithSigner, setContractWithSigner] = useState<
-    ethers.Contract | undefined
-  >(undefined);
-  const [idpContractWsigner, setIdpContractWsigner] = useState<
-    ethers.Contract | undefined
-  >(undefined);
   const toast = useRef<Toast>(null);
   const [buyTokenDialog, setBuyTokenDialog] = useState<boolean>(false);
   const [sellTokenDialog, setSellTokenDialog] = useState<boolean>(false);
@@ -32,42 +24,32 @@ const Stats = () => {
   const [userData, setUserData] = useState<PrivateUserData | undefined>(
     undefined
   );
-
-  const setData = useCallback(() => {
-    const prov = new ethers.providers.Web3Provider(eth);
-    const signer = prov.getSigner();
-    const response = newTokenContract(prov);
-
-    const tokenContract = response.connect(signer);
-
-    setContractWithSigner(tokenContract);
-
-    const responseIdp = newIdpContract(prov);
-    const idpContract = responseIdp.connect(signer);
-
-    setIdpContractWsigner(idpContract);
-  }, [eth]);
+  const dispatch = useDispatch<AppDispatch>();
+  const contract = useSelector(contractSelector);
 
   const getTokens = useCallback(async () => {
-    if (!idpContractWsigner) {
-      setData();
+    if (!contract.idpContract) {
+      console.log("idp contract");
       return;
     }
 
     try {
-      const balance = await idpContractWsigner.balance(eth.selectedAddress);
+      const balance = await contract.idpContract.balance(eth.selectedAddress);
       setValue(ethers.utils.formatEther(balance));
     } catch (error) {
       console.log(error);
       // showError(toast, "Chiamata andata male");
     }
-  }, [eth.selectedAddress, idpContractWsigner, setData]);
+  }, [contract.idpContract, eth.selectedAddress]);
 
   async function buyTokens() {
-    if (!idpContractWsigner) return;
+    if (!contract.idpContract) {
+      console.log("idp contract");
+      return;
+    }
 
     try {
-      idpContractWsigner
+      contract.idpContract
         .buy({
           value: ethers.utils.parseUnits(amountToken, 18),
         })
@@ -81,26 +63,26 @@ const Stats = () => {
   }
 
   async function sellTokens() {
-    if (!idpContractWsigner || !contractWithSigner) return;
+    if (!contract.idpContract || !contract.tokenContract) return;
 
     let sellValue = ethers.utils.parseUnits(amountToken, 18);
 
     try {
-      await contractWithSigner.approve(tokenHolder, sellValue);
-      await idpContractWsigner.sell(sellValue);
+      await contract.tokenContract.approve(tokenHolder, sellValue);
+      await contract.idpContract.sell(sellValue);
       setValue(undefined);
       setSellTokenDialog(false);
     } catch (error) {}
   }
 
   const getPrivateUserData = useCallback(async () => {
-    if (!idpContractWsigner) {
+    if (!contract.idpContract) {
       console.log("idp contract");
       return;
     }
 
     try {
-      const resp = await idpContractWsigner.getPrivateUserDataById(
+      const resp = await contract.idpContract.getPrivateUserDataById(
         eth.selectedAddress
       );
 
@@ -118,21 +100,21 @@ const Stats = () => {
     } catch (error: any) {
       console.log(error);
     }
-  }, [idpContractWsigner]);
+  }, [contract.idpContract, eth.selectedAddress]);
 
   useEffect(() => {
     if (value === undefined) getTokens();
     if (userData === undefined) getPrivateUserData();
-  }, [value, getTokens, idpContractWsigner, userData, getPrivateUserData]);
+  }, [value, getTokens, userData, getPrivateUserData]);
 
   const addUser = async () => {
-    if (!idpContractWsigner) {
-      console.log("");
+    if (!contract.idpContract) {
+      console.log("contract idpContract error");
       return;
     }
 
     try {
-      const resp = await idpContractWsigner.addUser(eth.selectedAddress);
+      const resp = await contract.idpContract.addUser(eth.selectedAddress);
       console.log(resp);
     } catch (error: any) {
       console.log(error);
@@ -141,12 +123,12 @@ const Stats = () => {
   };
 
   const addUser2 = async () => {
-    if (!idpContractWsigner) {
-      console.log("");
+    if (!contract.idpContract) {
+      console.log("contract idpContract error");
       return;
     }
     try {
-      const resp = await idpContractWsigner.addUser(addressTo);
+      const resp = await contract.idpContract.addUser(addressTo);
       console.log(resp);
     } catch (error: any) {
       console.log(error);
@@ -155,12 +137,13 @@ const Stats = () => {
   };
 
   const addPlatform = async () => {
-    if (!idpContractWsigner) {
-      console.log("");
+    if (!contract.idpContract) {
+      console.log("contract idpContract error");
       return;
     }
+
     try {
-      const resp = await idpContractWsigner.addPlatformToUser(
+      const resp = await contract.idpContract.addPlatformToUser(
         eth.selectedAddress,
         "64fcdab4dce9032efe803935",
         ethers.utils.parseUnits("0.000000000000000001")
@@ -234,7 +217,9 @@ const Stats = () => {
                 id="tokens"
                 className="w-full"
                 value={amountToken}
-                onChange={(e) => setAmountToken(e.target.value)}
+                onChange={(e) =>
+                  setAmountToken((amount) => (amount = e.target.value))
+                }
               />
               <label htmlFor="tokens">Token to buy</label>
             </span>
@@ -263,7 +248,9 @@ const Stats = () => {
                 id="tokens"
                 className="w-full"
                 value={amountToken}
-                onChange={(e) => setAmountToken(e.target.value)}
+                onChange={(e) =>
+                  setAmountToken((amount) => (amount = e.target.value))
+                }
               />
               <label htmlFor="tokens">Token to sell</label>
             </span>
