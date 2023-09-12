@@ -1,6 +1,12 @@
 import "./App.css";
 import Navbar from "./Components/Navbar/Navbar";
-import { Routes, Route, HashRouter } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Outlet,
+  Navigate,
+  BrowserRouter,
+} from "react-router-dom";
 import Home from "./Components/Home/Home";
 import Rent from "./Components/Rent/Rent";
 import Platforms from "./Components/Platforms/Platforms";
@@ -16,17 +22,28 @@ declare global {
 
 function App() {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/rent" element={<Rent />} />
         <Route path="/platforms" element={<Platforms />} />
-        <Route path="/personal-area" element={<Stats />} />
         <Route path="/signup-platform" element={<SignupPlatform />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="rent" element={<Rent />} />
+          <Route path="personal-area" element={<Stats />} />
+        </Route>
       </Routes>
-    </HashRouter>
+    </BrowserRouter>
   );
 }
 
+const ProtectedRoute = ({ redirectPath = "/" }: any) => {
+  const eth = window.ethereum;
+
+  return eth.selectedAddress ? (
+    <Outlet />
+  ) : (
+    <Navigate to={redirectPath} replace />
+  );
+};
 export default App;
