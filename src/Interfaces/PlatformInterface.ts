@@ -1,6 +1,7 @@
 export interface PlatformInterface {
     uuid: string;
     isValid: boolean;
+    cost: string;
 }
 
 export interface RentalInterface {
