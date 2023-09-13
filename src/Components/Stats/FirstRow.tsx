@@ -20,7 +20,10 @@ export const FirstRow = ({
             <div className="flex justify-content-between mb-3">
               <div>
                 <span className="block text-500 font-medium mb-3">Conto</span>
-                <div className="text-900 font-medium text-xl">
+                <div
+                  className="text-900 font-medium "
+                  style={{ fontSize: "1rem" }}
+                >
                   {value ? value : 0} EXC
                 </div>
               </div>
@@ -38,7 +41,12 @@ export const FirstRow = ({
             <div className="flex justify-content-between mb-3">
               <div>
                 <span className="block text-500 font-medium mb-3">Noleggi</span>
-                <div className="text-900 font-medium text-xl">100</div>
+                <div
+                  className="text-900 font-medium"
+                  style={{ fontSize: "1rem" }}
+                >
+                  100
+                </div>
               </div>
               <div
                 className="flex align-items-center justify-content-center bg-blue-100 border-round"
