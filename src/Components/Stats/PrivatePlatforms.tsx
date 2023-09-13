@@ -12,11 +12,14 @@ export const PrivatePlatforms = ({
   const [allPlatforms, setAllPlatforms] = useState<DBPlatformInterface[]>([]);
 
   const headerPlatforms = ({ alt, src }: { alt: string; src: string }) => (
-    <img alt={alt} src={src} style={{ width: "70%" }} />
+    <div style={{ height: "80px", width: "70%" }}>
+      <img alt={alt} src={src} style={{ width: "100%" }} />
+    </div>
   );
 
   useEffect(() => {
     if (!userData) return;
+
     try {
       getAllPlatforms().then((res) => {
         const platforms: DBPlatformInterface[] = res.data;
@@ -25,7 +28,7 @@ export const PrivatePlatforms = ({
           (ap) => userData.platforms.filter((p) => p.uuid === ap._id)[0]
         );
 
-        setAllPlatforms(ap);
+        setAllPlatforms((platforms) => (platforms = ap));
       });
     } catch (error) {}
   }, [userData]);
