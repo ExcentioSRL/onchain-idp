@@ -2,7 +2,6 @@ import { ethers } from "ethers";
 import { tokenHolder, addressTo } from "../../environment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Toast } from "primereact/toast";
-import { Card } from "primereact/card";
 import "./Stats.css";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
@@ -10,9 +9,9 @@ import { InputText } from "primereact/inputtext";
 import { PrivateUserData } from "../../Interfaces/PlatformInterface";
 import { FirstRow } from "./FirstRow";
 import { PrivatePlatforms } from "./PrivatePlatforms";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch } from "../../global.store";
-import { contractSelector } from "../../Slice/contracts.slice";
+import { instance as idpInstance } from "../../Service/idp.service";
+import { instance as tokenInstance } from "../../Service/token.service";
+import { RentCard } from "./RentCard";
 
 const Stats = () => {
   const eth = window.ethereum;
@@ -24,32 +23,35 @@ const Stats = () => {
   const [userData, setUserData] = useState<PrivateUserData | undefined>(
     undefined
   );
-  const dispatch = useDispatch<AppDispatch>();
-  const contract = useSelector(contractSelector);
+
+  const contractIdp = idpInstance.getContract();
+  const contractToken = tokenInstance.getContract();
 
   const getTokens = useCallback(async () => {
-    if (!contract.idpContract) {
+    if (!contractIdp) {
       console.log("idp contract");
       return;
     }
-
     try {
-      const balance = await contract.idpContract.balance(eth.selectedAddress);
+      const balance = await idpInstance
+        .getContract()!
+        .balance(eth.selectedAddress);
       setValue(ethers.utils.formatEther(balance));
     } catch (error) {
       console.log(error);
       // showError(toast, "Chiamata andata male");
     }
-  }, [contract.idpContract, eth.selectedAddress]);
+  }, [eth.selectedAddress, contractIdp]);
 
   async function buyTokens() {
-    if (!contract.idpContract) {
+    if (!contractIdp) {
       console.log("idp contract");
       return;
     }
 
     try {
-      contract.idpContract
+      idpInstance
+        .getContract()!
         .buy({
           value: ethers.utils.parseUnits(amountToken, 18),
         })
@@ -63,26 +65,26 @@ const Stats = () => {
   }
 
   async function sellTokens() {
-    if (!contract.idpContract || !contract.tokenContract) return;
+    if (!contractIdp || !contractToken) return;
 
     let sellValue = ethers.utils.parseUnits(amountToken, 18);
 
     try {
-      await contract.tokenContract.approve(tokenHolder, sellValue);
-      await contract.idpContract.sell(sellValue);
+      await contractToken.approve(tokenHolder, sellValue);
+      await contractIdp.sell(sellValue);
       setValue(undefined);
       setSellTokenDialog(false);
     } catch (error) {}
   }
 
   const getPrivateUserData = useCallback(async () => {
-    if (!contract.idpContract) {
+    if (!contractIdp) {
       console.log("idp contract");
       return;
     }
 
     try {
-      const resp = await contract.idpContract.getPrivateUserDataById(
+      const resp = await contractIdp.getPrivateUserDataById(
         eth.selectedAddress
       );
 
@@ -96,39 +98,39 @@ const Stats = () => {
         rentals: r.rentals,
       }))[0];
 
-      setUserData(data);
+      setUserData((userData) => (userData = data));
     } catch (error: any) {
       console.log(error);
     }
-  }, [contract.idpContract, eth.selectedAddress]);
+  }, [eth.selectedAddress, contractIdp]);
 
   useEffect(() => {
     if (value === undefined) getTokens();
     if (userData === undefined) getPrivateUserData();
   }, [value, getTokens, userData, getPrivateUserData]);
 
-  const addUser = async () => {
-    if (!contract.idpContract) {
-      console.log("contract idpContract error");
-      return;
-    }
+  // const addUser = async () => {
+  //   if (!contract.idpContract) {
+  //     console.log("contract idpContract error");
+  //     return;
+  //   }
 
-    try {
-      const resp = await contract.idpContract.addUser(eth.selectedAddress);
-      console.log(resp);
-    } catch (error: any) {
-      console.log(error);
-      // showError(toast, error.error.data.message.split("string")[1]);
-    }
-  };
+  //   try {
+  //     const resp = await contract.idpContract.addUser(eth.selectedAddress);
+  //     console.log(resp);
+  //   } catch (error: any) {
+  //     console.log(error);
+  //     // showError(toast, error.error.data.message.split("string")[1]);
+  //   }
+  // };
 
   const addUser2 = async () => {
-    if (!contract.idpContract) {
+    if (!contractIdp) {
       console.log("contract idpContract error");
       return;
     }
     try {
-      const resp = await contract.idpContract.addUser(addressTo);
+      const resp = await contractIdp.addUser(addressTo);
       console.log(resp);
     } catch (error: any) {
       console.log(error);
@@ -137,14 +139,14 @@ const Stats = () => {
   };
 
   const addPlatform = async () => {
-    if (!contract.idpContract) {
+    if (!contractIdp) {
       console.log("contract idpContract error");
       return;
     }
 
     try {
-      const resp = await contract.idpContract.addPlatformToUser(
-        eth.selectedAddress,
+      const resp = await contractIdp.addPlatformToUser(
+        addressTo,
         "64fcdab4dce9032efe803935",
         ethers.utils.parseUnits("0.000000000000000001")
       );
@@ -153,17 +155,6 @@ const Stats = () => {
       console.log(error);
     }
   };
-
-  const headerRentals = (
-    <div className="flex align-items-center">
-      <img
-        alt="Prime video"
-        src="/images/primevideo.png"
-        style={{ width: "30%" }}
-      />
-      <span className="font-semibold text-black-alpha-90">200 EXC</span>
-    </div>
-  );
 
   return (
     <div className="p-3">
@@ -174,29 +165,9 @@ const Stats = () => {
       />
 
       <PrivatePlatforms userData={userData} />
-
-      <div className="platforms px-5 flex flex-column gap-5">
-        <span className="title">I tuoi noleggi</span>
-        <div className="flex">
-          <Card header={headerRentals} className="md:w-20rem shadow-2">
-            <div className="flex gap-5">
-              <div className="flex flex-column">
-                <span className="text-black-alpha-90">
-                  Dal: 20/07/2023 16:00
-                </span>
-                <span className="text-black-alpha-90">
-                  al: 20/07/2023 18:00
-                </span>
-              </div>
-              <div className="flex justify-content-center align-items-center bg-green-500 px-1 w-4rem border-round-lg h-2rem text-white-alpha-90">
-                Attivo
-              </div>
-            </div>
-          </Card>
-        </div>
-      </div>
+      <RentCard />
       <div className="flex gap-3">
-        <Button onClick={addUser}>addUser</Button>
+        {/* <Button onClick={addUser}>addUser</Button>*/}
         <Button onClick={addUser2}>addUser2</Button>
         <Button onClick={addPlatform}>addPlatform</Button>
         {/* <Button onClick={addPlatformToUser2}>addPlatformToUser2</Button> */}
