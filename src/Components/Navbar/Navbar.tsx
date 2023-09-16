@@ -1,61 +1,44 @@
-import { RefObject, useCallback, useEffect, useRef, useState } from "react";
+import { RefObject, useRef } from "react";
 import { Button } from "primereact/button";
 import { Link } from "react-router-dom";
 import { EthereumInterface } from "../../Interfaces/EthInterfaces";
-import "./Navbar.css";
 import ToastComponent from "../ToastComponent/ToastComponent";
 import { Toast } from "primereact/toast";
+import { instance } from "../../Service/idp.service";
+import "./Navbar.css";
 
 async function getPublicAddress(
   toast: RefObject<Toast>,
   ethereum: EthereumInterface
 ) {
-  if (ethereum.isMetaMask) {
-    if (ethereum.selectedAddress != null) {
-      return ethereum.selectedAddress;
-    } else {
-      try {
-        const response = (await ethereum.request({
-          method: "eth_requestAccounts",
-        })) as string[];
-        return response[0];
-      } catch (error) {
-        // showError(toast, "Il wallet non è stato collegato");
-      }
-    }
+  if (!ethereum.isMetaMask) console.log("installa metamask");
+  try {
+    const response = (await ethereum.request({
+      method: "eth_requestAccounts",
+    })) as string[];
+    return response[0];
+  } catch (error) {
+    // showError(toast, "Il wallet non è stato collegato");
   }
 }
 
 const Navbar = () => {
   const ethereum = window.ethereum;
-  const [publicAddress, setPublicAddress] = useState<string | undefined>();
+
   const toast = useRef<Toast>(null);
+  const idpInstance = instance.getContract();
 
-  const login = useCallback(() => {
-    const response = getPublicAddress(toast, ethereum);
+  async function register() {
+    if (!idpInstance) return;
 
-    if (typeof response === "string") {
-      // showSuccess(toast, "Il wallet è stato collegato");
-      setPublicAddress(response);
-    } else if (response) {
-      response.then((res) => {
-        if (typeof res === "string") {
-          // showSuccess(toast, "Il wallet è stato collegato");
-          setPublicAddress(res);
-        } else {
-          // showError(toast, "Il wallet non è stato collegato");
-          setPublicAddress(undefined);
-        }
-      });
-    } else {
-      // showError(toast, "Il wallet non è stato collegato");
-      setPublicAddress(undefined);
+    try {
+      const address = await getPublicAddress(toast, ethereum);
+
+      await idpInstance.addUser(address);
+    } catch (error) {
+      console.log(error);
     }
-  }, [ethereum]);
-
-  useEffect(() => {
-    if (publicAddress === undefined) login();
-  }, [login, publicAddress]);
+  }
 
   return (
     <div className="w-full flex justify-content-between bg-primary py-2 px-3 ">
@@ -67,7 +50,7 @@ const Navbar = () => {
         >
           Home
         </Link>
-        {publicAddress ? (
+        {ethereum.selectedAddress ? (
           <Link
             to={"/rent"}
             className="cursor-pointer text-xl text-hover-navbar text-white"
@@ -85,8 +68,15 @@ const Navbar = () => {
         </Link>
       </div>
       <div className="flex gap-3 align-items-center">
-        {publicAddress === undefined ? (
-          <Button label="Accedi" rounded size="small" onClick={login} />
+        {ethereum.selectedAddress === undefined ? (
+          <>
+            <Button
+              label="Registrati"
+              rounded
+              size="small"
+              onClick={register}
+            />
+          </>
         ) : (
           <Link
             to={"/personal-area"}
