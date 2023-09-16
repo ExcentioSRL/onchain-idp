@@ -32,6 +32,7 @@ const Stats = () => {
       console.log("idp contract");
       return;
     }
+
     try {
       const balance = await idpInstance
         .getContract()!
@@ -50,8 +51,7 @@ const Stats = () => {
     }
 
     try {
-      idpInstance
-        .getContract()!
+      contractIdp
         .buy({
           value: ethers.utils.parseUnits(amountToken, 18),
         })
@@ -109,20 +109,20 @@ const Stats = () => {
     if (userData === undefined) getPrivateUserData();
   }, [value, getTokens, userData, getPrivateUserData]);
 
-  // const addUser = async () => {
-  //   if (!contract.idpContract) {
-  //     console.log("contract idpContract error");
-  //     return;
-  //   }
+  const addUser = async () => {
+    if (!contractIdp) {
+      console.log("contract idpContract error");
+      return;
+    }
 
-  //   try {
-  //     const resp = await contract.idpContract.addUser(eth.selectedAddress);
-  //     console.log(resp);
-  //   } catch (error: any) {
-  //     console.log(error);
-  //     // showError(toast, error.error.data.message.split("string")[1]);
-  //   }
-  // };
+    try {
+      const resp = await contractIdp.addUser(eth.selectedAddress);
+      console.log(resp);
+    } catch (error: any) {
+      console.log(error);
+      // showError(toast, error.error.data.message.split("string")[1]);
+    }
+  };
 
   const addUser2 = async () => {
     if (!contractIdp) {
@@ -146,8 +146,26 @@ const Stats = () => {
 
     try {
       const resp = await contractIdp.addPlatformToUser(
+        eth.selectedAddress,
+        "64e9b4d93fbdd0167a72cacc",
+        ethers.utils.parseUnits("0.000000000000000001")
+      );
+      console.log(resp);
+    } catch (error: any) {
+      console.log(error);
+    }
+  };
+
+  const addPlatformToUser2 = async () => {
+    if (!contractIdp) {
+      console.log("contract idpContract error");
+      return;
+    }
+
+    try {
+      const resp = await contractIdp.addPlatformToUser(
         addressTo,
-        "64fcdab4dce9032efe803935",
+        "64e9b4d93fbdd0167a72cacc",
         ethers.utils.parseUnits("0.000000000000000001")
       );
       console.log(resp);
@@ -165,13 +183,13 @@ const Stats = () => {
       />
 
       <PrivatePlatforms userData={userData} />
-      <RentCard />
+      <RentCard userData={userData} />
       <div className="flex gap-3">
-        {/* <Button onClick={addUser}>addUser</Button>*/}
+        <Button onClick={addUser}>addUser</Button>
         <Button onClick={addUser2}>addUser2</Button>
         <Button onClick={addPlatform}>addPlatform</Button>
-        {/* <Button onClick={addPlatformToUser2}>addPlatformToUser2</Button> */}
-        <Button onClick={getPrivateUserData}>getPrivateUserData</Button>
+        <Button onClick={addPlatformToUser2}>addPlatformToUser2</Button>
+        {/* <Button onClick={getPrivateUserData}>getPrivateUserData</Button> */}
       </div>
       <Toast ref={toast}></Toast>
 

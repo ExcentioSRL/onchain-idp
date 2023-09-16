@@ -3,20 +3,67 @@ import { Column } from "primereact/column";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "primereact/button";
 import { Image } from "primereact/image";
-import { ethers } from "ethers";
-import { newIdpContract } from "../../environment";
+import { instance as idpInstance } from "../../Service/idp.service";
 import RentDialog from "./RentDialog/RentDialog";
+import {
+  PlatformInterface,
+  PrivateUserData,
+  RentalInterface,
+} from "../../Interfaces/PlatformInterface";
+import { ethers } from "ethers";
+import { getAllPlatforms } from "../../Service/platform.service";
+import { DBPlatformInterface } from "../Platforms/Platforms";
 
-interface UserRentInterface {
+export interface PlatformRentInterface {
+  id: string;
+  cost: string;
+  pathImage: string;
+  name: string;
+}
+
+export interface UserRentInterface {
   name: string | undefined;
   publicAddress: string;
-  platforms: {
-    valid: boolean;
-    uuid: string;
-    code: string;
-  }[];
-  cost: number;
+  platforms: PlatformRentInterface[];
+  rentals: RentalInterface[];
 }
+
+/*
+[
+    {
+      name: undefined,
+      publicAddress: "0x1234",
+      platforms: [
+        {
+          isValid: true,
+          uuid: "1",
+          cost: "0.000001",
+        },
+        {
+          isValid: true,
+          uuid: "2",
+          cost: "0.00001",
+        },
+      ],
+    },
+    {
+      name: undefined,
+      publicAddress: "0x5678",
+      platforms: [
+        {
+          isValid: true,
+          uuid: "1",
+          cost: "0.00001",
+        },
+        {
+          isValid: true,
+          uuid: "2",
+          cost: "0.00001",
+        },
+      ],
+    },
+  ]
+ */
 
 const Rent = () => {
   const [showRentDialog, setShowRentDialog] = useState<boolean>(false);
@@ -24,70 +71,61 @@ const Rent = () => {
     UserRentInterface | undefined
   >(undefined);
   const eth = window.ethereum;
-  const [users, setUsers] = useState<UserRentInterface[]>([
-    {
-      name: undefined,
-      publicAddress: "0x1234",
-      platforms: [
-        {
-          valid: true,
-          uuid: "1",
-          code: "NETFLIX",
-        },
-        {
-          valid: true,
-          uuid: "2",
-          code: "PRIMEVIDEO",
-        },
-      ],
-      cost: 20,
-    },
-    {
-      name: undefined,
-      publicAddress: "0x5678",
-      platforms: [
-        {
-          valid: true,
-          uuid: "1",
-          code: "NETFLIX",
-        },
-        {
-          valid: true,
-          uuid: "2",
-          code: "PRIMEVIDEO",
-        },
-      ],
-      cost: 20,
-    },
-  ]);
-  const selectedAddress =
-    eth.selectedAddress != null ? eth.selectedAddress.toLowerCase() : undefined;
+  const contractIdp = idpInstance.getContract();
 
-  const getUserData = useCallback(async () => {
-    const prov = new ethers.providers.Web3Provider(eth);
-    const signer = prov.getSigner();
-    const response = newIdpContract(prov);
-    const idpContract = response.connect(signer);
+  const [users, setUsers] = useState<UserRentInterface[]>([]);
 
-    // try {
-    //   const resp = await idpContract.getUserData();
-    //   if (resp.isEmpty()) return;
-    //   setUsers([
-    // {
-    //   name: undefined,
-    //   publicAddress: resp[0].userAddr,
-    //   platforms: "uuid",
-    //   cost: 20,
-    // },
-    //   ]);
-    // } catch (error: any) {
-    //   console.log(error);
-    // }
-  }, []);
+  const getUserPlatforms = (
+    dbPlatforms: DBPlatformInterface[],
+    bcPlatform: PlatformInterface[]
+  ) => {
+    return bcPlatform.map((p) => {
+      let platform = dbPlatforms.filter((ap) => p.uuid === ap._id)[0];
+
+      return {
+        id: platform._id,
+        cost: ethers.utils.formatEther(p.cost),
+        pathImage: platform.pathImage,
+        name: platform.name,
+      };
+    });
+  };
+
+  const getUserData = useCallback(
+    async (dbPlatforms: DBPlatformInterface[]) => {
+      if (!contractIdp) {
+        console.log("idp contract");
+        return;
+      }
+
+      try {
+        const privateData: PrivateUserData[] =
+          await contractIdp.getPrivateUserData();
+
+        const data: UserRentInterface[] = privateData.map(
+          (r: PrivateUserData) => {
+            return {
+              name: undefined,
+              publicAddress: r.userAddr,
+              platforms: getUserPlatforms(dbPlatforms, r.platforms),
+              rentals: r.rentals,
+            };
+          }
+        );
+
+        setUsers(data);
+      } catch (error: any) {
+        console.log(error);
+      }
+    },
+    [contractIdp]
+  );
 
   useEffect(() => {
-    getUserData();
-  }, []);
+    getAllPlatforms().then((res) => {
+      getUserData(res.data);
+    });
+  }, [getUserData]);
 
   const selectUser = (userData: UserRentInterface) => {
     setSelectedUser((user) => (user = userData));
@@ -95,24 +133,21 @@ const Rent = () => {
   };
 
   const rentTemplate = (rowData: any) => {
-    if (selectedAddress) {
+    if (eth.selectedAddress) {
       const address = rowData.publicAddress.toLowerCase();
-      if (address === selectedAddress) return <></>;
+      if (address === eth.selectedAddress.toLowerCase()) return <></>;
     }
 
     return <Button onClick={() => selectUser(rowData)}>Noleggia</Button>;
   };
 
   const platformTemplate = (rowData: UserRentInterface) => {
-    // switch (platforms[0]) {
-    //   case "Netflix":
-    //     console.log("netflix");
-    //     break;
-    //   default:
-    //     console.log("niente");
-    // }
     return (
-      <Image src="/images/netflix.png" alt="netflixLogo" width="60px"></Image>
+      <>
+        {rowData.platforms.map((p) => (
+          <Image key={p.id} src={p.pathImage} alt={p.name} width="60px"></Image>
+        ))}
+      </>
     );
   };
 
@@ -141,7 +176,7 @@ const Rent = () => {
           header="Piattaforme"
           body={platformTemplate}
         ></Column>
-        <Column field="cost" header="Costo"></Column>
+        {/* <Column field="cost" header="Costo"></Column> */}
         <Column field="noleggio" header="Noleggio" body={rentTemplate} />
       </DataTable>
       {showRentDialog && selectedUser ? (

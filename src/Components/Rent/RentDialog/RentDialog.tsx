@@ -3,30 +3,39 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 import { Button } from "primereact/button";
+import { PlatformRentInterface, UserRentInterface } from "../Rent";
+import { ethers } from "ethers";
+import { instance as tokenInstance } from "../../../Service/token.service";
+import { instance as idpInstance } from "../../../Service/idp.service";
+import { tokenHolder } from "../../../environment";
 
-const RentDialog = ({ data, onClose }: { data: any; onClose: any }) => {
+export interface LabelValue<T = any> {
+  label: string;
+  value: T;
+}
+
+const RentDialog = ({
+  data,
+  onClose,
+}: {
+  data: UserRentInterface;
+  onClose: any;
+}) => {
   const [platforms, setPlatforms] = useState<any | undefined>(undefined);
-  const [selectedPlatform, setSelectedPlatform] = useState();
+  const [selectedPlatform, setSelectedPlatform] = useState<string | undefined>(
+    undefined
+  );
   const [fromDate, setFromDate] = useState<any>(new Date());
   const [toDate, setToDate] = useState<any>();
   const [totalCost, setTotalCost] = useState<number | undefined>(undefined);
-
-  const switchPlatforms = (platformCode: string) => {
-    switch (platformCode) {
-      case "NETFLIX":
-        return "netflix";
-      case "PRIMEVIDEO":
-        return "prime video";
-      default:
-        return;
-    }
-  };
+  const tokenContract = tokenInstance.getContract();
+  const idpContract = idpInstance.getContract();
 
   const getAllPlatformsName = useCallback(() => {
     setPlatforms(
-      data.platforms.map((platform: any) => ({
-        name: switchPlatforms(platform.code),
-        uuid: platform.uuid,
+      data.platforms.map((platform: PlatformRentInterface) => ({
+        label: platform.name,
+        value: platform.id,
       }))
     );
   }, [data.platforms]);
@@ -41,23 +50,57 @@ const RentDialog = ({ data, onClose }: { data: any; onClose: any }) => {
   }
 
   const calculateCost = () => {
+    if (!selectedPlatform) return;
+
+    let p = data.platforms.find((platform) => platform.id === selectedPlatform);
+
+    if (!p) return;
+
     let timeConverted = convertInHour(
       new Date(toDate).getTime() - new Date(fromDate).getTime()
     );
 
-    //il costo verrà salvato in ore, qui viene convertito a minuti
-    let cost = parseInt(timeConverted) * (data.cost / 60);
-    return parseInt(cost.toFixed(2));
+    //TODO
+    let cost =
+      parseInt(timeConverted) * Number(ethers.utils.parseEther(p.cost));
+
+    return cost;
   };
 
-  const sendRental = () => {
-    const rent = {
-      cost: calculateCost(),
-      platformId: selectedPlatform,
-      hirer: data.publicAddress,
-      renter: "0x",
-    };
-    console.log(rent);
+  const sendRental = async () => {
+    if (!tokenContract || !idpContract) {
+      console.log("error");
+      return;
+    }
+
+    try {
+      let amount = ethers.utils.parseUnits("0.009", 18);
+      let response = await tokenContract.increaseAllowance(tokenHolder, amount);
+
+      const rent = {
+        transactionId: response.hash,
+        amount: amount,
+        platformId: selectedPlatform,
+        renter: data.publicAddress,
+        hirer: window.ethereum.selectedAddress,
+        startDate: new Date(fromDate).getTime(),
+        endDate: new Date(toDate).getTime(),
+      };
+
+      let rentResp = await idpContract.addRent(
+        rent.transactionId,
+        rent.renter,
+        rent.hirer,
+        rent.startDate,
+        rent.endDate,
+        rent.amount,
+        rent.platformId
+      );
+
+      console.log(rentResp);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -80,8 +123,8 @@ const RentDialog = ({ data, onClose }: { data: any; onClose: any }) => {
                 setSelectedPlatform((platform) => (platform = e.value))
               }
               options={platforms}
-              optionLabel="name"
-              optionValue="uuid"
+              optionLabel="label"
+              optionValue="value"
               placeholder="Seleziona una piattaforma"
               className="w-full md:w-20rem"
             />
