@@ -1,5 +1,5 @@
-import { ethers, utils } from "ethers";
-import { tokenHolder, addressTo, idpContranct } from "../../environment";
+import { ethers } from "ethers";
+import { tokenHolder, addressTo } from "../../environment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Toast } from "primereact/toast";
 import "./Stats.css";
