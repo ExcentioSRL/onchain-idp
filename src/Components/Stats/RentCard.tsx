@@ -42,23 +42,27 @@ export const RentCard = ({
     <div className="platforms px-5 flex flex-column gap-5">
       <span className="title">I tuoi noleggi</span>
       <div className="flex">
-        {userData?.rentals.map((r) => (
-          <Card header={headerRentals(r)} className="md:w-20rem shadow-2">
-            <div className="flex gap-5">
-              <div className="flex flex-column">
-                <span className="text-black-alpha-90">
-                  Dal: 20/07/2023 16:00
-                </span>
-                <span className="text-black-alpha-90">
-                  al: 20/07/2023 18:00
-                </span>
+        {userData && userData.rentals.length > 0 ? (
+          userData.rentals.map((r) => (
+            <Card header={headerRentals(r)} className="md:w-20rem shadow-2">
+              <div className="flex gap-5">
+                <div className="flex flex-column">
+                  <span className="text-black-alpha-90">
+                    Dal: 20/07/2023 16:00
+                  </span>
+                  <span className="text-black-alpha-90">
+                    al: 20/07/2023 18:00
+                  </span>
+                </div>
+                <div className="flex justify-content-center align-items-center bg-green-500 px-1 w-4rem border-round-lg h-2rem text-white-alpha-90">
+                  Attivo
+                </div>
               </div>
-              <div className="flex justify-content-center align-items-center bg-green-500 px-1 w-4rem border-round-lg h-2rem text-white-alpha-90">
-                Attivo
-              </div>
-            </div>
-          </Card>
-        ))}
+            </Card>
+          ))
+        ) : (
+          <>Non sono presenti noleggi</>
+        )}
       </div>
     </div>
   );

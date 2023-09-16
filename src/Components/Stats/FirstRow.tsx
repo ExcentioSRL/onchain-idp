@@ -1,16 +1,19 @@
 import { Button } from "primereact/button";
+import { ProgressSpinner } from "primereact/progressspinner";
 import { Dispatch, SetStateAction } from "react";
 
 interface FirstRowProps {
   value: string | undefined;
   setBuyTokenDialog: Dispatch<SetStateAction<boolean>>;
   setSellTokenDialog: Dispatch<SetStateAction<boolean>>;
+  loading: boolean;
 }
 
 export const FirstRow = ({
   value,
   setBuyTokenDialog,
   setSellTokenDialog,
+  loading,
 }: FirstRowProps) => {
   return (
     <div className="flex w-full justify-content-around">
@@ -24,7 +27,14 @@ export const FirstRow = ({
                   className="text-900 font-medium "
                   style={{ fontSize: "1rem" }}
                 >
-                  {value ? value : 0} EXC
+                  {loading ? (
+                    <ProgressSpinner
+                      style={{ height: "40px", width: "40px" }}
+                      strokeWidth="5"
+                    />
+                  ) : (
+                    <> {value ? value : 0} EXC</>
+                  )}
                 </div>
               </div>
               <div

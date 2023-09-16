@@ -51,6 +51,7 @@
   top: 0;
   left: 0;
   border-radius: 15px;
+  padding: 0 1rem;
 }
 
 .general-card .info {
