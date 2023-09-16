@@ -7,6 +7,7 @@ import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { getAllPlatforms } from "../../Service/platform.service";
 import { DBPlatformInterface } from "../Platforms/Platforms";
+import { formatDate } from "../../Utility/date.utility";
 
 export const RentCard = ({
   userData,
@@ -25,7 +26,7 @@ export const RentCard = ({
     const platform = platforms.find((p) => p._id === r.platformId);
 
     return (
-      <div className="flex align-items-center">
+      <div className="flex w-full align-items-center gap-6 p-3">
         <img
           alt={platform?.name}
           src={platform?.pathImage}
@@ -44,14 +45,18 @@ export const RentCard = ({
       <div className="flex">
         {userData && userData.rentals.length > 0 ? (
           userData.rentals.map((r) => (
-            <Card header={headerRentals(r)} className="md:w-20rem shadow-2">
+            <Card
+              header={headerRentals(r)}
+              className="md:w-20rem shadow-2"
+              key={r.transactionId}
+            >
               <div className="flex gap-5">
                 <div className="flex flex-column">
                   <span className="text-black-alpha-90">
-                    Dal: 20/07/2023 16:00
+                    Dal: {formatDate(r.startDate.toString())}
                   </span>
                   <span className="text-black-alpha-90">
-                    al: 20/07/2023 18:00
+                    al: {formatDate(r.endDate.toString())}
                   </span>
                 </div>
                 <div className="flex justify-content-center align-items-center bg-green-500 px-1 w-4rem border-round-lg h-2rem text-white-alpha-90">

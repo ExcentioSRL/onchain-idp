@@ -68,7 +68,7 @@ const Navbar = () => {
         </Link>
       </div>
       <div className="flex gap-3 align-items-center">
-        {ethereum.selectedAddress === undefined ? (
+        {ethereum.selectedAddress == null ? (
           <>
             <Button
               label="Registrati"
