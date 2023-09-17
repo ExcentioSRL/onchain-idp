@@ -60,9 +60,9 @@ const RentDialog = ({
       new Date(toDate).getTime() - new Date(fromDate).getTime()
     );
 
-    //TODO
-    let cost =
-      parseInt(timeConverted) * Number(ethers.utils.parseEther(p.cost));
+    let tc = parseFloat(p.cost) * parseFloat(timeConverted);
+
+    let cost = parseFloat(tc.toString()).toFixed(18);
 
     return cost;
   };
@@ -74,7 +74,10 @@ const RentDialog = ({
     }
 
     try {
-      let amount = ethers.utils.parseUnits("0.009", 18);
+      let cost = calculateCost();
+      if (!cost) return;
+
+      let amount = ethers.utils.parseUnits(cost, 18);
       let response = await tokenContract.increaseAllowance(tokenHolder, amount);
 
       const rent = {
@@ -87,7 +90,7 @@ const RentDialog = ({
         endDate: new Date(toDate).getTime(),
       };
 
-      let rentResp = await idpContract.addRent(
+      await idpContract.addRent(
         rent.transactionId,
         rent.renter,
         rent.hirer,
@@ -96,8 +99,6 @@ const RentDialog = ({
         rent.amount,
         rent.platformId
       );
-
-      console.log(rentResp);
     } catch (error) {
       console.log(error);
     }

@@ -12,7 +12,10 @@ export const PrivatePlatforms = ({
   const [allPlatforms, setAllPlatforms] = useState<DBPlatformInterface[]>([]);
 
   const headerPlatforms = ({ alt, src }: { alt: string; src: string }) => (
-    <div style={{ height: "80px", width: "70%" }}>
+    <div
+      style={{ height: "80px", width: "70%" }}
+      className="flex align-items-center"
+    >
       <img alt={alt} src={src} style={{ width: "100%" }} />
     </div>
   );
