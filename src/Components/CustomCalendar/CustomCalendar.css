@@ -1,0 +1,55 @@
+.rbc-btn-group > button:first-child:not(:last-child) {
+  display: none;
+}
+
+.rbc-header {
+  border-bottom: none !important;
+  align-items: center;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+}
+
+.rbc-time-header {
+  max-height: 50px;
+}
+
+.rbc-time-header-content {
+  height: 100%;
+}
+
+.rbc-today {
+  background-color: transparent;
+}
+
+.rbc-time-view .rbc-row {
+  height: 50px;
+}
+
+.active {
+  background: rgb(21, 122, 255);
+  color: #fff;
+  padding: 0.3rem 0.4rem;
+  border-radius: 50%;
+}
+
+.rbc-time-view {
+  border-radius: 10px;
+}
+
+.rbc-time-content > .rbc-time-gutter {
+  width: 79.1719px;
+  min-width: 79.1719px;
+  max-width: 79.1719px;
+}
+
+.rbc-day-slot .rbc-events-container {
+  margin-right: 0;
+}
+
+.rbc-event {
+  border-radius: 0;
+  background-color: rgb(69, 69, 69);
+  cursor: auto;
+}
