@@ -26,17 +26,55 @@ export const RentCard = ({
     const platform = platforms.find((p) => p._id === r.platformId);
 
     return (
-      <div className="flex w-full align-items-center gap-6 p-3">
+      <div className="flex w-full align-items-center gap-3 justify-content-around p-3">
         <img
           alt={platform?.name}
           src={platform?.pathImage}
           style={{ width: "30%" }}
         />
-        <span className="font-semibold text-black-alpha-90">
+        <span
+          className="font-semibold text-black-alpha-90"
+          style={{ fontSize: "12px" }}
+        >
           {ethers.utils.formatEther(r.amount)} EXC
         </span>
       </div>
     );
+  };
+
+  const getStato = (r: RentalInterface) => {
+    const date = new Date();
+
+    switch (true) {
+      case date.getTime() < Number(r.startDate.toString()):
+        return (
+          <div
+            className="flex justify-content-center align-items-center bg-green-500 px-1 w-4rem border-round-lg h-2rem text-white"
+            style={{ fontSize: "14px" }}
+          >
+            In programma
+          </div>
+        );
+      case date.getTime() > Number(r.startDate.toString()) &&
+        date.getTime() < Number(r.endDate.toString()):
+        return (
+          <div
+            className="flex justify-content-center align-items-center bg-yellow-600	 px-1 w-4rem border-round-lg h-2rem text-white"
+            style={{ fontSize: "14px" }}
+          >
+            In corso
+          </div>
+        );
+      default:
+        return (
+          <div
+            className="flex justify-content-center align-items-center bg-red-500 px-1 w-4rem border-round-lg h-2rem text-white"
+            style={{ fontSize: "14px" }}
+          >
+            Finito
+          </div>
+        );
+    }
   };
 
   return (
@@ -47,7 +85,7 @@ export const RentCard = ({
           userData.rentals.map((r) => (
             <Card
               header={headerRentals(r)}
-              className="md:w-20rem shadow-2"
+              className="md:w-20rem shadow-2 mr-4"
               key={r.transactionId}
             >
               <div className="flex gap-5">
@@ -59,9 +97,7 @@ export const RentCard = ({
                     al: {formatDate(r.endDate.toString())}
                   </span>
                 </div>
-                <div className="flex justify-content-center align-items-center bg-green-500 px-1 w-4rem border-round-lg h-2rem text-white-alpha-90">
-                  Attivo
-                </div>
+                <>{getStato(r)}</>
               </div>
             </Card>
           ))

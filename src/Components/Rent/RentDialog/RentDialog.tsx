@@ -27,7 +27,6 @@ const RentDialog = ({
   );
   const [fromDate, setFromDate] = useState<any>(new Date());
   const [toDate, setToDate] = useState<any>();
-  const [totalCost, setTotalCost] = useState<number | undefined>(undefined);
   const tokenContract = tokenInstance.getContract();
   const idpContract = idpInstance.getContract();
 
@@ -142,7 +141,6 @@ const RentDialog = ({
             value={fromDate}
             onChange={(e) => {
               setFromDate((fromDate: any) => (fromDate = e.value));
-              setTotalCost((cost) => (cost = undefined));
             }}
             selectionMode="single"
             showIcon={true}
@@ -161,7 +159,6 @@ const RentDialog = ({
             value={toDate}
             onChange={(e) => {
               setToDate((toDate: any) => (toDate = e.value));
-              setTotalCost((cost) => (cost = undefined));
             }}
             selectionMode="single"
             showIcon={true}
