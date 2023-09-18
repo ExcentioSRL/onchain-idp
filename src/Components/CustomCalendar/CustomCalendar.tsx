@@ -3,34 +3,37 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import moment from "moment";
 import { Button } from "primereact/button";
 import "./CustomCalendar.css";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { formatDate } from "../../Utility/date.utility";
+import { useSelector } from "react-redux";
+import { rentSelector } from "../../Slice/rent.slice";
+import { ethers } from "ethers";
+import { instance as tokenInstance } from "../../Service/token.service";
+import { instance as idpInstance } from "../../Service/idp.service";
+import { tokenHolder } from "../../environment";
+
+const monthNames = [
+  "Gennaio",
+  "Febbraio",
+  "Marzo",
+  "Aprile",
+  "Maggio",
+  "Giugno",
+  "Luglio",
+  "Agosto",
+  "Settembre",
+  "Ottobre",
+  "Novembre",
+  "Dicembre",
+];
 
 function CustomCalendar() {
-  const monthNames = [
-    "Gennaio",
-    "Febbraio",
-    "Marzo",
-    "Aprile",
-    "Maggio",
-    "Giugno",
-    "Luglio",
-    "Agosto",
-    "Settembre",
-    "Ottobre",
-    "Novembre",
-    "Dicembre",
-  ];
+  const formValue = useSelector(rentSelector);
+  const tokenContract = tokenInstance.getContract();
+  const idpContract = idpInstance.getContract();
 
-  const [events, setEvents] = useState<any[]>([
-    {
-      title: "disabilitato",
-      start: new Date("2023-09-19T04:00:00.000Z"),
-      end: new Date("2023-09-19T05:00:00.000Z"),
-    },
-  ]);
-
+  const [events, setEvents] = useState<any[]>([]);
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [startHour, setStartHour] = useState<Date | undefined>(undefined);
   const [endHour, setEndHour] = useState<Date | undefined>(undefined);
@@ -116,6 +119,86 @@ function CustomCalendar() {
     );
   };
 
+  useEffect(() => {
+    if (!formValue.user) return;
+
+    let onlyPlatformRent = formValue.user.rentals.filter(
+      (r) => r.platformId === formValue.platform
+    );
+
+    setEvents(
+      onlyPlatformRent.map((pr) => ({
+        start: new Date(pr.start),
+        end: new Date(pr.end),
+      }))
+    );
+  }, []);
+
+  function convertInHour(milliseconds: number) {
+    //divido i millisecondi per mille e poi per 60 così da avere i minuti
+    return (milliseconds / (1000 * 60)).toFixed(0);
+  }
+
+  const calculateCost = () => {
+    if (!formValue.platform || !formValue.user || !startHour || !endHour)
+      return;
+
+    let p = formValue.user.platforms.find(
+      (platform) => platform.id === formValue.platform
+    );
+
+    if (!p) return;
+
+    let timeConverted = convertInHour(
+      new Date(endHour).getTime() - new Date(startHour).getTime()
+    );
+
+    let tc = parseFloat(p.cost) * parseFloat(timeConverted);
+
+    let cost = parseFloat(tc.toString()).toFixed(18);
+
+    return cost;
+  };
+
+  const sendRental = async () => {
+    if (!tokenContract || !idpContract || !startHour || !endHour) {
+      console.log("error");
+      return;
+    }
+
+    try {
+      let cost = calculateCost();
+      if (!cost) return;
+
+      let amount = ethers.utils.parseUnits(cost, 18);
+      let response = await tokenContract.increaseAllowance(tokenHolder, amount);
+
+      const rent = {
+        transactionId: response.hash,
+        amount: amount,
+        platformId: formValue.platform,
+        renter: formValue.user!.publicAddress,
+        hirer: window.ethereum.selectedAddress,
+        start: new Date(startHour).getTime(),
+        end: new Date(endHour).getTime(),
+        timestamp: new Date(startHour).setHours(0, 0, 0, 0),
+      };
+
+      await idpContract.addRent(
+        rent.transactionId,
+        rent.renter,
+        rent.hirer,
+        rent.start,
+        rent.end,
+        rent.amount,
+        rent.platformId,
+        rent.timestamp
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <div className="p-3">
@@ -148,7 +231,13 @@ function CustomCalendar() {
             Noleggerai l'account dalle ore {formatDate(startHour)} alle ore{" "}
             {formatDate(endHour)}
           </div>
-          <Button label="Noleggia" severity="success" rounded />
+          <Button
+            label="Noleggia"
+            severity="success"
+            rounded
+            disabled={formValue.disabled}
+            onClick={sendRental}
+          />
         </Dialog>
       ) : (
         <></>

@@ -46,7 +46,7 @@ export const RentCard = ({
     const date = new Date();
 
     switch (true) {
-      case date.getTime() < Number(r.startDate.toString()):
+      case date.getTime() < Number(r.start.toString()):
         return (
           <div
             className="flex justify-content-center align-items-center bg-green-500 px-1 w-4rem border-round-lg h-2rem text-white"
@@ -55,8 +55,8 @@ export const RentCard = ({
             In programma
           </div>
         );
-      case date.getTime() > Number(r.startDate.toString()) &&
-        date.getTime() < Number(r.endDate.toString()):
+      case date.getTime() > Number(r.start.toString()) &&
+        date.getTime() < Number(r.end.toString()):
         return (
           <div
             className="flex justify-content-center align-items-center bg-yellow-600	 px-1 w-4rem border-round-lg h-2rem text-white"
@@ -91,10 +91,10 @@ export const RentCard = ({
               <div className="flex gap-5">
                 <div className="flex flex-column">
                   <span className="text-black-alpha-90">
-                    Dal: {formatDate(r.startDate.toString())}
+                    Dal: {formatDate(r.start.toString())}
                   </span>
                   <span className="text-black-alpha-90">
-                    al: {formatDate(r.endDate.toString())}
+                    al: {formatDate(r.end.toString())}
                   </span>
                 </div>
                 <>{getStato(r)}</>
