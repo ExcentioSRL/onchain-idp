@@ -15,7 +15,6 @@ import Stats from "./Components/Stats/Stats";
 import SignupPlatform from "./Components/SignupPlatform/SignupPlatform";
 import { Provider } from "react-redux";
 import { globalStore } from "./global.store";
-import CustomCalendar from "./Components/CustomCalendar/CustomCalendar";
 
 declare global {
   interface Window {
@@ -31,7 +30,6 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/platforms" element={<Platforms />} />
-          <Route path="/calendar" element={<CustomCalendar />} />
           <Route path="/signup-platform" element={<SignupPlatform />} />
           <Route element={<ProtectedRoute />}>
             <Route path="rent" element={<Rent />} />
