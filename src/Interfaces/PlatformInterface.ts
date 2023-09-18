@@ -8,8 +8,8 @@ export interface RentalInterface {
     transactionId: string;
     renter: string;
     hirer: string;
-    startDate: number;
-    endDate: number;
+    start: number;
+    end: number;
     amount: number;
     platformId: string;
 }

@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
 import thunk from 'redux-thunk'
-import { contractReducer } from './Slice/contracts.slice';
+import { rentReducer } from './Slice/rent.slice';
 
 export const globalStore = configureStore({
     reducer: {
-        contract: contractReducer
+        rent: rentReducer
 
     },
     middleware: (getDefaultMiddleware) =>
