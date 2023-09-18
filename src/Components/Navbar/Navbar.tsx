@@ -41,19 +41,22 @@ const Navbar = () => {
   }
 
   return (
-    <div className="w-full flex justify-content-between bg-primary py-2 px-3 ">
+    <div
+      className="w-full flex justify-content-between py-2 px-3 "
+      style={{ boxShadow: "0 1px 20px rgb(109 109 109)" }}
+    >
       <div className="flex gap-4 justify-content-start align-items-center">
         <img src="images/logo.png" alt="Logo" style={{ height: "40px" }} />
         <Link
           to={"/"}
-          className="cursor-pointer text-xl text-hover-navbar text-white"
+          className="cursor-pointer text-xl text-hover-navbar text-black-alpha-90	"
         >
           Home
         </Link>
         {ethereum.selectedAddress ? (
           <Link
             to={"/rent"}
-            className="cursor-pointer text-xl text-hover-navbar text-white"
+            className="cursor-pointer text-xl text-hover-navbar text-black-alpha-90	"
           >
             Noleggio
           </Link>
@@ -62,7 +65,7 @@ const Navbar = () => {
         )}
         <Link
           to={"/platforms"}
-          className="cursor-pointer text-xl text-hover-navbar text-white"
+          className="cursor-pointer text-xl text-hover-navbar text-black-alpha-90	"
         >
           Piattaforme
         </Link>
@@ -80,7 +83,7 @@ const Navbar = () => {
         ) : (
           <Link
             to={"/personal-area"}
-            className="cursor-pointer text-xl text-hover-navbar text-white"
+            className="cursor-pointer text-xl text-hover-navbar text-black-alpha-90	"
           >
             Area personale
           </Link>
