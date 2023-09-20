@@ -19,65 +19,7 @@ const ListAccount = () => {
   const eth = window.ethereum;
   const dispatch = useDispatch();
   const contractIdp = idpInstance.getContract();
-  const [users, setUsers] = useState<UserRentInterface[]>([
-    {
-      name: undefined,
-      publicAddress: "0x1234",
-      platforms: [
-        {
-          id: "1",
-          cost: "0.0000001",
-          pathImage: "/images/logo.png",
-          name: "Excentio",
-        },
-      ],
-      rentals: [],
-    },
-    {
-      name: undefined,
-      publicAddress: "0x5678",
-      platforms: [
-        {
-          id: "1",
-          cost: "0.0000001",
-          pathImage: "/images/logo.png",
-          name: "Excentio",
-        },
-        {
-          id: "2",
-          cost: "0.0000001",
-          pathImage: "/images/fitnessfusion.png",
-          name: "fitnessfusion",
-        },
-        {
-          id: "3",
-          cost: "0.0000001",
-          pathImage: "/images/videovista.png",
-          name: "videovista",
-        },
-      ],
-      rentals: [
-        {
-          transactionId: "",
-          renter: "0x5",
-          hirer: "0x",
-          start: 1695033721287,
-          end: 1695037325843,
-          amount: 0.0001,
-          platformId: "1",
-        },
-        {
-          transactionId: "",
-          renter: "0x5",
-          hirer: "0x",
-          start: 1695058172840,
-          end: 1695058173840,
-          amount: 0.0001,
-          platformId: "1",
-        },
-      ],
-    },
-  ]);
+  const [users, setUsers] = useState<UserRentInterface[]>([]);
 
   const getUserPlatforms = (
     dbPlatforms: DBPlatformInterface[],
@@ -112,7 +54,7 @@ const ListAccount = () => {
               name: undefined,
               publicAddress: r.userAddr,
               platforms: getUserPlatforms(dbPlatforms, r.platforms),
-              rentals: r.rentals,
+              rentals: [],
             };
           }
         );

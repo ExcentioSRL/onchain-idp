@@ -6,12 +6,13 @@ import "./CustomCalendar.css";
 import { useCallback, useEffect, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { formatDate } from "../../Utility/date.utility";
-import { useSelector } from "react-redux";
-import { rentSelector } from "../../Slice/rent.slice";
+import { useDispatch, useSelector } from "react-redux";
+import { changeStatus, rentSelector } from "../../Slice/rent.slice";
 import { ethers } from "ethers";
 import { instance as tokenInstance } from "../../Service/token.service";
 import { instance as idpInstance } from "../../Service/idp.service";
 import { tokenHolder } from "../../environment";
+import { RentStatus } from "../../Interfaces/RentInterfaces";
 
 const monthNames = [
   "Gennaio",
@@ -29,6 +30,7 @@ const monthNames = [
 ];
 
 function CustomCalendar() {
+  const dispatch = useDispatch();
   const formValue = useSelector(rentSelector);
   const tokenContract = tokenInstance.getContract();
   const idpContract = idpInstance.getContract();
@@ -119,19 +121,30 @@ function CustomCalendar() {
     );
   };
 
+  const getData = useCallback(async () => {
+    if (!formValue.user || !idpContract) return;
+
+    const resp = await idpContract.getPrivateUserDataById(
+      formValue.user.publicAddress
+    );
+
+    return resp[0].rentals;
+  }, [formValue.user, idpContract]);
+
   useEffect(() => {
     if (!formValue.user) return;
 
-    let onlyPlatformRent = formValue.user.rentals.filter(
-      (r) => r.platformId === formValue.platform
-    );
+    const value = getData();
+    value.then((res) => {
+      const allEvents = res.map((pr: any) => {
+        return {
+          start: new Date(Number(pr.start.toString())),
+          end: new Date(Number(pr.end.toString())),
+        };
+      });
 
-    setEvents(
-      onlyPlatformRent.map((pr) => ({
-        start: new Date(pr.start),
-        end: new Date(pr.end),
-      }))
-    );
+      setEvents(allEvents);
+    });
   }, []);
 
   function convertInHour(milliseconds: number) {
@@ -162,7 +175,6 @@ function CustomCalendar() {
 
   const sendRental = async () => {
     if (!tokenContract || !idpContract || !startHour || !endHour) {
-      console.log("error");
       return;
     }
 
@@ -194,6 +206,8 @@ function CustomCalendar() {
         rent.platformId,
         rent.timestamp
       );
+
+      dispatch(changeStatus(RentStatus.ACCOUNT));
     } catch (error) {
       console.log(error);
     }

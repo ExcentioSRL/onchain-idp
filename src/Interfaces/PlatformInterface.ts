@@ -12,6 +12,7 @@ export interface RentalInterface {
     end: number;
     amount: number;
     platformId: string;
+    timestamp: number;
 }
 
 export interface GlobalUserData {
