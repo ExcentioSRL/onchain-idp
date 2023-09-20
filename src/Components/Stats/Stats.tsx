@@ -10,14 +10,17 @@ import { instance as tokenInstance } from "../../Service/token.service";
 import { RentCard } from "./RentCard";
 import { addressTo } from "../../environment";
 import { Button } from "primereact/button";
+import { useSelector } from "react-redux";
+import { userSelector } from "../../Slice/user.slice";
 
 const Stats = () => {
-  const eth = window.ethereum;
   const [value, setValue] = useState<string | undefined>(undefined);
   const toast = useRef<Toast>(null);
   const [userData, setUserData] = useState<PrivateUserData | undefined>(
     undefined
   );
+
+  const user = useSelector(userSelector);
 
   const contractIdp = idpInstance.getContract();
   const contractToken = tokenInstance.getContract();
@@ -29,13 +32,13 @@ const Stats = () => {
     }
 
     try {
-      const balance = await contractToken.balanceOf(eth.selectedAddress);
+      const balance = await contractToken.balanceOf(user.userAddress);
       setValue(ethers.utils.formatEther(balance));
     } catch (error) {
       console.log(error);
       // showError(toast, "Chiamata andata male");
     }
-  }, [eth.selectedAddress, contractToken]);
+  }, [user.userAddress, contractToken]);
 
   const getPrivateUserData = useCallback(async () => {
     if (!contractIdp) {
@@ -44,9 +47,7 @@ const Stats = () => {
     }
 
     try {
-      const resp = await contractIdp.getPrivateUserDataById(
-        eth.selectedAddress
-      );
+      const resp = await contractIdp.getPrivateUserDataById(user.userAddress);
 
       const data: PrivateUserData = resp.map((r: PrivateUserData) => ({
         userAddr: r.userAddr,
@@ -62,7 +63,7 @@ const Stats = () => {
     } catch (error: any) {
       console.log(error);
     }
-  }, [eth.selectedAddress, contractIdp]);
+  }, [user.userAddress, contractIdp]);
 
   useEffect(() => {
     if (value === undefined) getTokens();
@@ -108,7 +109,8 @@ const Stats = () => {
 
         <PrivatePlatforms userData={userData} />
         <RentCard userData={userData} />
-        {/* <Button onClick={addPlatformToUser2}>addPlatformToUser2</Button> */}
+        {/* <Button onClick={addUser2}>addUser2</Button>
+        <Button onClick={addPlatformToUser2}>addPlatformToUser2</Button> */}
 
         <Toast ref={toast}></Toast>
       </div>

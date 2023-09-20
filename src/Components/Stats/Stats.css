@@ -2,9 +2,10 @@
   min-height: 8rem;
 }
 
-.platforms > .title {
+.platforms > .title-stats {
   font-size: 20px;
   font-weight: 600;
+  color: #000;
 }
 
 .p-card .p-card-body {
