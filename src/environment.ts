@@ -683,6 +683,11 @@ export const idpAbi = [
         "internalType": "address",
         "name": "userAddress",
         "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "platformId",
+        "type": "string"
       }
     ],
     "name": "checkRent",
