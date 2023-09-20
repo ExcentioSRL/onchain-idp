@@ -2,7 +2,7 @@ import { PayloadAction, createSelector, createSlice } from '@reduxjs/toolkit'
 import { RentStatus, UserRentInterface } from '../Interfaces/RentInterfaces';
 import { RootState } from '../global.store';
 
-interface LabelValue<T = any> {
+export interface LabelValue<T = any> {
     label: string;
     value: T;
 }
