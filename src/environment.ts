@@ -400,6 +400,19 @@ export const idpAbi = [
     "inputs": [
       {
         "indexed": false,
+        "internalType": "bool",
+        "name": "b",
+        "type": "bool"
+      }
+    ],
+    "name": "CheckBooleanValue",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "number",
         "type": "uint256"
@@ -425,6 +438,80 @@ export const idpAbi = [
       }
     ],
     "name": "CheckPlatform",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "transactionId",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "renter",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "hirer",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "start",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "end",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "platformId",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Idp.RentalStruct",
+        "name": "r",
+        "type": "tuple"
+      }
+    ],
+    "name": "CheckRent",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "key",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "valid",
+        "type": "bool"
+      }
+    ],
+    "name": "CheckRentKey",
     "type": "event"
   },
   {
@@ -457,6 +544,25 @@ export const idpAbi = [
       }
     ],
     "name": "CheckUser",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "key",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isValid",
+        "type": "bool"
+      }
+    ],
+    "name": "CheckValue",
     "type": "event"
   },
   {
@@ -529,6 +635,11 @@ export const idpAbi = [
         "internalType": "string",
         "name": "platformId",
         "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       }
     ],
     "name": "addRent",
@@ -550,47 +661,39 @@ export const idpAbi = [
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "approva",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "balance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "buy",
     "outputs": [],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "time",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      }
+    ],
+    "name": "checkRent",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -669,12 +772,12 @@ export const idpAbi = [
               },
               {
                 "internalType": "uint256",
-                "name": "startDate",
+                "name": "start",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "endDate",
+                "name": "end",
                 "type": "uint256"
               },
               {
@@ -686,6 +789,11 @@ export const idpAbi = [
                 "internalType": "string",
                 "name": "platformId",
                 "type": "string"
+              },
+              {
+                "internalType": "uint256",
+                "name": "timestamp",
+                "type": "uint256"
               }
             ],
             "internalType": "struct Idp.RentalStruct[]",
@@ -759,12 +867,12 @@ export const idpAbi = [
               },
               {
                 "internalType": "uint256",
-                "name": "startDate",
+                "name": "start",
                 "type": "uint256"
               },
               {
                 "internalType": "uint256",
-                "name": "endDate",
+                "name": "end",
                 "type": "uint256"
               },
               {
@@ -776,6 +884,11 @@ export const idpAbi = [
                 "internalType": "string",
                 "name": "platformId",
                 "type": "string"
+              },
+              {
+                "internalType": "uint256",
+                "name": "timestamp",
+                "type": "uint256"
               }
             ],
             "internalType": "struct Idp.RentalStruct[]",
@@ -805,66 +918,6 @@ export const idpAbi = [
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "getUserData",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "userAddr",
-            "type": "address"
-          },
-          {
-            "components": [
-              {
-                "internalType": "string",
-                "name": "uuid",
-                "type": "string"
-              },
-              {
-                "internalType": "bool",
-                "name": "isValid",
-                "type": "bool"
-              },
-              {
-                "internalType": "uint256",
-                "name": "cost",
-                "type": "uint256"
-              }
-            ],
-            "internalType": "struct Idp.PlatformStruct[]",
-            "name": "platforms",
-            "type": "tuple[]"
-          }
-        ],
-        "internalType": "struct Idp.GlobalUserData[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "increase",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -873,47 +926,6 @@ export const idpAbi = [
       }
     ],
     "name": "sell",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "transfer",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "transferFrom",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
