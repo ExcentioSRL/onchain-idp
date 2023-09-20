@@ -6,6 +6,8 @@ import ToastComponent from "../ToastComponent/ToastComponent";
 import { Toast } from "primereact/toast";
 import { instance } from "../../Service/idp.service";
 import "./Navbar.css";
+import { useDispatch, useSelector } from "react-redux";
+import { changeState, userSelector } from "../../Slice/user.slice";
 
 async function getPublicAddress(
   toast: RefObject<Toast>,
@@ -27,6 +29,8 @@ const Navbar = () => {
 
   const toast = useRef<Toast>(null);
   const idpInstance = instance.getContract();
+  const dispatch = useDispatch();
+  const user = useSelector(userSelector);
 
   async function register() {
     if (!idpInstance) return;
@@ -34,10 +38,20 @@ const Navbar = () => {
     try {
       const address = await getPublicAddress(toast, ethereum);
 
-      await idpInstance.addUser(address);
+      if (address) {
+        const response = await idpInstance.addUser(address);
+        console.log(response);
+        dispatch(changeState({ label: "userAddress", value: address }));
+      }
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async function login() {
+    const address = await getPublicAddress(toast, ethereum);
+    if (address)
+      dispatch(changeState({ label: "userAddress", value: address }));
   }
 
   return (
@@ -53,7 +67,7 @@ const Navbar = () => {
         >
           Home
         </Link>
-        {ethereum.selectedAddress ? (
+        {user.userAddress ? (
           <Link
             to={"/rent"}
             className="cursor-pointer text-xl text-hover-navbar text-black-alpha-90	"
@@ -71,8 +85,9 @@ const Navbar = () => {
         </Link>
       </div>
       <div className="flex gap-3 align-items-center">
-        {ethereum.selectedAddress == null ? (
+        {user.userAddress === "" ? (
           <>
+            <Button label="Login" rounded size="small" onClick={login} />
             <Button
               label="Registrati"
               rounded

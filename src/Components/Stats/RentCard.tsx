@@ -79,7 +79,7 @@ export const RentCard = ({
 
   return (
     <div className="platforms px-5 flex flex-column gap-5">
-      <span className="title">I tuoi noleggi</span>
+      <span className="title-stats">I tuoi noleggi</span>
       <div className="flex">
         {userData && userData.rentals.length > 0 ? (
           userData.rentals.map((r) => (

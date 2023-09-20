@@ -38,7 +38,7 @@ export const PrivatePlatforms = ({
 
   return (
     <div className="platforms px-5 flex flex-column gap-5 mb-5">
-      <span className="title">Le tue piattaforme</span>
+      <span className="title-stats">Le tue piattaforme</span>
 
       {!userData ||
       userData.platforms.length === 0 ||

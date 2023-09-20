@@ -13,8 +13,9 @@ import Platforms from "./Components/Platforms/Platforms";
 import { EthereumInterface } from "./Interfaces/EthInterfaces";
 import Stats from "./Components/Stats/Stats";
 import SignupPlatform from "./Components/SignupPlatform/SignupPlatform";
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import { globalStore } from "./global.store";
+import { userSelector } from "./Slice/user.slice";
 
 declare global {
   interface Window {
@@ -42,12 +43,8 @@ function App() {
 }
 
 const ProtectedRoute = ({ redirectPath = "/" }: any) => {
-  const eth = window.ethereum;
+  const user = useSelector(userSelector);
 
-  return eth.selectedAddress ? (
-    <Outlet />
-  ) : (
-    <Navigate to={redirectPath} replace />
-  );
+  return user.userAddress ? <Outlet /> : <Navigate to={redirectPath} replace />;
 };
 export default App;
