@@ -49,7 +49,7 @@ export const RentCard = ({
       case date.getTime() < Number(r.start.toString()):
         return (
           <div
-            className="flex justify-content-center align-items-center bg-green-500 px-1 w-4rem border-round-lg h-2rem text-white"
+            className="flex justify-content-center align-items-center bg-green-500 px-1 w-7rem border-round-lg h-2rem text-white"
             style={{ fontSize: "14px" }}
           >
             In programma
@@ -85,7 +85,7 @@ export const RentCard = ({
           userData.rentals.map((r) => (
             <Card
               header={headerRentals(r)}
-              className="md:w-20rem shadow-2 mr-4"
+              className="md:w-24rem shadow-2 mr-4"
               key={r.transactionId}
             >
               <div className="flex gap-5">
