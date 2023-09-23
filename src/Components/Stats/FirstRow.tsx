@@ -66,7 +66,7 @@ export const FirstRow = ({ value, getTokens }: FirstRowProps) => {
     <div className="flex w-full justify-content-around">
       <div className="grid p-3 w-10">
         <CardToken loading={loading} value={value} />
-        <CardRentValue />
+        {/* <CardRentValue /> */}
       </div>
       <div className="flex flex-column gap-3 justify-content-center">
         <Button

@@ -16,6 +16,7 @@ import SignupPlatform from "./Components/SignupPlatform/SignupPlatform";
 import { Provider, useSelector } from "react-redux";
 import { globalStore } from "./global.store";
 import { userSelector } from "./Slice/user.slice";
+import CustomCalendar from "./Components/CustomCalendar/CustomCalendar";
 
 declare global {
   interface Window {

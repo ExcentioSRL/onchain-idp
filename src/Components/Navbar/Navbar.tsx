@@ -8,6 +8,7 @@ import { instance } from "../../Service/idp.service";
 import "./Navbar.css";
 import { useDispatch, useSelector } from "react-redux";
 import { changeState, userSelector } from "../../Slice/user.slice";
+import { showError } from "../ToastComponent/ToastFunctions";
 
 async function getPublicAddress(
   toast: RefObject<Toast>,
@@ -20,7 +21,7 @@ async function getPublicAddress(
     })) as string[];
     return response[0];
   } catch (error) {
-    // showError(toast, "Il wallet non è stato collegato");
+    showError(toast, "Il wallet non è stato collegato");
   }
 }
 
@@ -39,8 +40,8 @@ const Navbar = () => {
       const address = await getPublicAddress(toast, ethereum);
 
       if (address) {
-        const response = await idpInstance.addUser(address);
-        console.log(response);
+        await idpInstance.addUser(address);
+
         dispatch(changeState({ label: "userAddress", value: address }));
       }
     } catch (error) {

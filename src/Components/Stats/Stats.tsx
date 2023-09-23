@@ -12,6 +12,7 @@ import { addressTo } from "../../environment";
 import { Button } from "primereact/button";
 import { useSelector } from "react-redux";
 import { userSelector } from "../../Slice/user.slice";
+import { showError } from "../ToastComponent/ToastFunctions";
 
 const Stats = () => {
   const [value, setValue] = useState<string | undefined>(undefined);
@@ -76,8 +77,7 @@ const Stats = () => {
       return;
     }
     try {
-      const resp = await contractIdp.addUser(addressTo);
-      console.log(resp);
+      await contractIdp.addUser(addressTo);
     } catch (error: any) {
       console.log(error);
       // showError(toast, error.error.data.message.split("string")[1]);
@@ -109,8 +109,8 @@ const Stats = () => {
 
         <PrivatePlatforms userData={userData} />
         <RentCard userData={userData} />
-        {/* <Button onClick={addUser2}>addUser2</Button>
-        <Button onClick={addPlatformToUser2}>addPlatformToUser2</Button> */}
+        <Button onClick={addUser2}>addUser2</Button>
+        <Button onClick={addPlatformToUser2}>addPlatformToUser2</Button>
 
         <Toast ref={toast}></Toast>
       </div>

@@ -46,7 +46,6 @@ export const rentSlice = createSlice({
                 case "user":
                     state.user = action.payload.value as UserRentInterface;
                     break;
-
                 case "platform":
                     state.platform = action.payload.value as string;
                     break;
@@ -56,11 +55,12 @@ export const rentSlice = createSlice({
         changeStatus: (state, action: PayloadAction<RentStatus>) => {
             state.status = changerentPage(action.payload);
         },
+        pulisci: () => initialState
     },
 
 })
 
-export const { changeState, changeStatus } = rentSlice.actions
+export const { changeState, changeStatus, pulisci } = rentSlice.actions
 
 const rentState = (state: RootState) => state.rent
 export const rentSelector = createSelector(rentState, (m) => m)

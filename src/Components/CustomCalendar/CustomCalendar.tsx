@@ -3,16 +3,19 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import moment from "moment";
 import { Button } from "primereact/button";
 import "./CustomCalendar.css";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { formatDate } from "../../Utility/date.utility";
 import { useDispatch, useSelector } from "react-redux";
-import { changeStatus, rentSelector } from "../../Slice/rent.slice";
+import { changeStatus, pulisci, rentSelector } from "../../Slice/rent.slice";
 import { ethers } from "ethers";
 import { instance as tokenInstance } from "../../Service/token.service";
 import { instance as idpInstance } from "../../Service/idp.service";
 import { tokenHolder } from "../../environment";
 import { RentStatus } from "../../Interfaces/RentInterfaces";
+import ToastComponent from "../ToastComponent/ToastComponent";
+import { Toast } from "primereact/toast";
+import { showError } from "../ToastComponent/ToastFunctions";
 
 const monthNames = [
   "Gennaio",
@@ -40,6 +43,8 @@ function CustomCalendar() {
   const [startHour, setStartHour] = useState<Date | undefined>(undefined);
   const [endHour, setEndHour] = useState<Date | undefined>(undefined);
 
+  const toast = useRef<Toast>(null);
+
   const localizer = momentLocalizer(moment);
 
   const myToolbar = ({ onNavigate }: any) => {
@@ -55,6 +60,7 @@ function CustomCalendar() {
           onClick={() => onNavigate(Navigate.PREVIOUS)}
         />
         <Button
+          className="mr-3"
           icon="pi pi-angle-right"
           aria-label="NEXT"
           rounded
@@ -62,7 +68,7 @@ function CustomCalendar() {
           raised
           onClick={() => onNavigate(Navigate.NEXT)}
         />
-        <span className="ml-3 text-2xl font-semibold">
+        <span className=" text-2xl font-semibold">
           {monthNames[new Date().getMonth()]} {new Date().getFullYear()}
         </span>
       </div>
@@ -98,6 +104,10 @@ function CustomCalendar() {
 
   const handleSelectSlot = useCallback(
     ({ start, end }: any) => {
+      if (start < new Date()) {
+        return showError(toast, "Non puoi prenotare un account nel passato!");
+      }
+
       for (let e of events) {
         let res = isSlotDisabled(start, end, e.start, e.end);
         if (res === false) return;
@@ -196,7 +206,7 @@ function CustomCalendar() {
         timestamp: new Date(startHour).setHours(0, 0, 0, 0),
       };
 
-      await idpContract.addRent(
+      const res = await idpContract.addRent(
         rent.transactionId,
         rent.renter,
         rent.hirer,
@@ -209,7 +219,8 @@ function CustomCalendar() {
 
       dispatch(changeStatus(RentStatus.ACCOUNT));
     } catch (error) {
-      console.log(error);
+      dispatch(pulisci());
+      dispatch(changeStatus(RentStatus.ACCOUNT));
     }
   };
 
@@ -230,9 +241,17 @@ function CustomCalendar() {
             eventWrapper: myEventWrapper,
           }}
           onSelectSlot={handleSelectSlot}
-          timeslots={1}
+          timeslots={2}
           selectable
+          step={15}
+          allDayAccessor={1}
         />
+        <Button
+          className="mt-2"
+          onClick={() => dispatch(changeStatus(RentStatus.CHOOSEPLATFORM))}
+        >
+          Indietro
+        </Button>
       </div>
       {showDialog && startHour && endHour ? (
         <Dialog
@@ -256,6 +275,7 @@ function CustomCalendar() {
       ) : (
         <></>
       )}
+      <ToastComponent toast={toast} />
     </>
   );
 }
