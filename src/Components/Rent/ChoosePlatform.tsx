@@ -42,19 +42,23 @@ const ChoosePlatform = () => {
         </div>
         <div className="flex w-full justify-content-around pb-2">
           <Button
+            className="cursor-pointer"
+            label="Indietro"
+            severity="secondary"
+            outlined
             onClick={() => {
               dispatch(changeState({ label: "platform", value: undefined }));
               dispatch(changeStatus(RentStatus.ACCOUNT));
             }}
-          >
-            Indietro
-          </Button>
+          />
           <Button
+            className="cursor-pointer"
+            label="Avanti"
+            severity="success"
+            outlined
             disabled={formValue.platform === undefined}
             onClick={() => dispatch(changeStatus(RentStatus.CHOOSEDATE))}
-          >
-            Avanti
-          </Button>
+          />
         </div>
       </div>
     </div>

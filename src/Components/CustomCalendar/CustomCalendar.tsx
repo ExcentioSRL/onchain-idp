@@ -183,7 +183,7 @@ function CustomCalendar() {
     return cost;
   };
 
-  const sendRental = async () => {
+  async function sendRental() {
     if (!tokenContract || !idpContract || !startHour || !endHour) {
       return;
     }
@@ -222,7 +222,7 @@ function CustomCalendar() {
       dispatch(pulisci());
       dispatch(changeStatus(RentStatus.ACCOUNT));
     }
-  };
+  }
 
   return (
     <>
@@ -247,11 +247,12 @@ function CustomCalendar() {
           allDayAccessor={1}
         />
         <Button
-          className="mt-2"
+          className="cursor-pointer mt-5"
+          label="Indietro"
+          severity="secondary"
+          outlined
           onClick={() => dispatch(changeStatus(RentStatus.CHOOSEPLATFORM))}
-        >
-          Indietro
-        </Button>
+        />
       </div>
       {showDialog && startHour && endHour ? (
         <Dialog
@@ -265,9 +266,10 @@ function CustomCalendar() {
             {formatDate(endHour)}
           </div>
           <Button
-            label="Noleggia"
+            className="cursor-pointer"
+            label="Avanti"
             severity="success"
-            rounded
+            outlined
             disabled={formValue.disabled}
             onClick={sendRental}
           />

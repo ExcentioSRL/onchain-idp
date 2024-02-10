@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { newTokenContract } from "../environment";
+import { tokenAbi, tokenContract } from "../environment";
 
 class Token {
 
@@ -7,12 +7,20 @@ class Token {
     private tokenContract: ethers.Contract | undefined = undefined;
 
     private constructor() {
-        const prov = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = prov.getSigner();
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
 
-        const responseIdp = newTokenContract(prov);
+        const responseIdp = this.newTokenContract(provider);
         this.tokenContract = responseIdp.connect(signer);
     }
+
+    private newTokenContract(provider: any) {
+        return new ethers.Contract(
+            tokenContract,
+            tokenAbi,
+            provider
+        );
+    };
 
     public static getInstance() {
         if (!Token.tokenInstance)
@@ -24,6 +32,8 @@ class Token {
     public getContract() {
         return this.tokenContract;
     }
+
+
 
 }
 
